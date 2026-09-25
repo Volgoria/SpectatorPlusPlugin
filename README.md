@@ -4,15 +4,38 @@ Système spectateur avancé pour serveurs Minecraft **1.8 → 26.x** (Spigot / P
 
 ## Compilation (IntelliJ IDEA)
 
-1. `File > Open…` → sélectionner le dossier du projet (IntelliJ détecte le `pom.xml`).
-2. Panneau **Maven** → `Lifecycle` → `package` (ou `mvn package` en ligne de commande).
-3. Le plugin est généré dans `target/SpectatorPlus-1.0.0.jar`.
+Projet **Gradle** multi-modules (wrapper inclus, Gradle 9.8) :
 
-Le projet compile contre l'API **Spigot 1.8.8** en bytecode **Java 8** : le même jar tourne sur un
+| Module | Contenu | Commande | Jar produit |
+|---|---|---|---|
+| `core` | logique commune, sans Bukkit ni loader (Java 8) | — (embarqué dans les autres) | — |
+| `bukkit` | plugin Spigot / Paper / hybrides, 1.8 → 26.x | `gradlew :bukkit:build` | `bukkit/build/libs/SpectatorPlus-1.0.0.jar` |
+| `fabric` | mod server-side, une version par Minecraft (Stonecutter) | `gradlew :fabric:26.3:build` | `fabric/versions/<mc>/build/libs/SpectatorPlus-Fabric-1.0.0+<mc>.jar` |
+
+1. `File > Open…` → sélectionner le dossier du projet (IntelliJ détecte `settings.gradle.kts`).
+2. `gradlew build` compile tout (plugin + toutes les versions Fabric).
+
+Versions Fabric : 1.16.5, 1.18.2, 1.19.2, 1.20.1, 1.20.4, 1.21.1, 1.21.11, 26.3 (fichier
+`fabric/stonecutter.properties.toml`). Le code Fabric est unique : les différences entre versions
+s'écrivent avec les commentaires Stonecutter (`//? if >=1.18 {` … `//?}`), en mappings Mojang partout.
+
+Le plugin Bukkit compile contre l'API **Spigot 1.8.8** en bytecode **Java 8** : le même jar tourne sur un
 serveur 1.8 (Java 8) comme sur un serveur 26.x (Java 25). Tout ce qui n'existe pas en 1.8 est
 appelé par réflexion (`fr.spectatorplus.compat`). **Ne jamais référencer directement une constante
 `Material`, `Sound`, `Biome`, `Enchantment` ou `PotionEffectType` renommée après 1.8** : passer par
 `Mat`, `Compat` ou `Sounds`.
+
+## Plateformes
+
+| Serveur | Support |
+|---|---|
+| Spigot / CraftBukkit | 1.8 → 26.x (base) |
+| Paper, Purpur, forks | 1.8 → 26.x, API Paper utilisée quand elle existe (`compat/PaperHooks`) |
+| Hybrides Forge / NeoForge (Mohist, Youer, Arclight, Magma, Ketting, CatServer) | oui, joueurs fictifs des mods ignorés, inventaires de mods bloqués |
+| Hybrides Fabric (Banner, Cardboard, Arclight Fabric) | oui, idem |
+| Folia | non (planificateur Bukkit indisponible) |
+
+La détection se fait au démarrage (`compat/Platform`) et apparaît dans la console.
 
 ## Structure
 
@@ -35,7 +58,7 @@ appelé par réflexion (`fr.spectatorplus.compat`). **Ne jamais référencer dir
 
 ## Langues
 
-Fournies : **fr**, **en**, **es**, **de**. Langue d'un joueur : son choix (`/spec lang` ou menu Paramètres)
+Fournies : **fr**, **en**, **es**, **de**, **pt**. Langue d'un joueur : son choix (`/spec lang` ou menu Paramètres)
 → langue de son client Minecraft (`language.per-player`) → `language.default`.
 Une clé absente d'un fichier retombe sur la langue par défaut puis sur l'anglais.
 Ajouter une langue : copier `lang/en.yml` en `lang/xx.yml` et traduire, puis `/spec reload`.

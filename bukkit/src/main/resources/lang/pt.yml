@@ -1,0 +1,833 @@
+# ============================================================================
+#                 SPECTATOR PLUS - IDIOMA: PORTUGUÊS (pt)
+# ============================================================================
+# Para criar um novo idioma: copie este arquivo como <código>.yml (ex: it.yml)
+# e traduza os textos. As chaves ausentes usam o idioma padrão.
+# Usado automaticamente pelos clientes em pt_BR e pt_PT.
+# ============================================================================
+language:
+  name: 'Português'
+  changed: '&7Idioma: &b{language}'
+  current: '&7Idioma atual: &b{language} &8| &7Disponíveis: &f{languages} &8(/spec lang <código|auto>)'
+
+prefix: '&8[&bSpectator&3+&8] &r'
+
+categories:
+  world: '&2Mundo e dimensões'
+  mining: '&7Mineração e blocos'
+  player: '&eJogadores'
+  pvp: '&cCombate PvP'
+  death: '&4Morte / eliminação'
+  craft: '&6Criação e itens'
+  enchant: '&dEncantamentos'
+  pve: '&aPvE e criaturas'
+  potion: '&5Poções e efeitos'
+  game: '&bProgresso da partida'
+  custom: '&fEventos personalizados'
+
+importance:
+  LOW: '&8Baixa'
+  NORMAL: '&7Normal'
+  IMPORTANT: '&6Importante'
+  CRITICAL: '&cCrítica'
+
+player-mode:
+  all: '&aTodos os jogadores'
+  whitelist: '&fApenas a lista branca'
+  blacklist: '&8Todos exceto a lista negra'
+  followed: '&bApenas o jogador seguido'
+  favorites: '&eApenas os favoritos'
+
+placeholders:
+  none: 'Nenhum'
+  not-spectator: 'NENHUM'
+  zone-enter: 'entra'
+  zone-leave: 'sai'
+  border-shrink: 'está diminuindo'
+  border-grow: 'está aumentando'
+
+help:
+  - '&8&m-----------&r &bSpectator&3+ &8&m-----------'
+  - '&b/{label} &7- Menu principal'
+  - '&b/{label} join|leave [jogador] &7- Entrar / sair do modo espectador'
+  - '&b/{label} tp <jogador> &7- Teleportar'
+  - '&b/{label} follow <jogador|stop> &7- Seguir um jogador'
+  - '&b/{label} pov <jogador|stop> &7- Visão em primeira pessoa'
+  - '&b/{label} next|prev &7- Próximo / anterior jogador'
+  - '&b/{label} inspect|inv|ec <jogador> &7- Ficha, inventário, baú do ender'
+  - '&b/{label} filters|events|info|settings &7- Menus'
+  - '&b/{label} preset <nome> &7- Trocar o preset de filtros'
+  - '&b/{label} resetfilters [jogador|*] &7- Redefinir os filtros'
+  - '&b/{label} lang <código|auto> &7- Trocar de idioma'
+  - '&c/{label} list | freeze | unfreeze | eliminate &7- Administração'
+  - '&c/{label} game <start|end|pvp|grace|episode|endepisode|winner|teamwin>'
+  - '&c/{label} mode <MANUAL|SEMI_AUTO|AUTO> | event <id> | reload'
+
+spectator:
+  enter: '&7Agora você é &bespectador&7. Use os itens da sua barra de inventário.'
+  leave: '&7Você saiu do modo espectador.'
+  restored: '&7Seu modo espectador foi restaurado.'
+  teleported: '&7Teleportado para &b{target}&7.'
+  follow-start: '&7Você está seguindo &b{target}&7. &8(agachar + clique no olho para parar)'
+  follow-stop: '&7Você não está mais seguindo ninguém.'
+  target-lost: '&7O jogador seguido não está mais disponível.'
+  pov-start: '&7Você vê pelos olhos de &b{target}&7. &8(agache para sair)'
+  pov-stop: '&7Visão em primeira pessoa encerrada.'
+  frozen: '&cVocê foi imobilizado.'
+  unfrozen: '&aVocê pode se mover novamente.'
+
+hud:
+  following: '&bSeguindo: &f{target} &8| &c❤ {health}/{max_health} &8| &6Fome {food} &8| &7{distance}m &8| &7{world}'
+  pov: '&dPOV: &f{target} &8| &c❤ {health}/{max_health} &8| &6Fome {food} &8| &7Kills: {kills}'
+  free: '&7Vivos: &a{alive} &8| &7Espectadores: &b{spectators} &8| &7Partida: &f{time}'
+
+events:
+  hover: '&7Evento: &f{event}\n&7Importância: &f{priority}\n&eClique para teleportar até {player}'
+  critical-title: '&c&l{event_name}'
+
+filters:
+  reset: '&7Seus filtros foram redefinidos.'
+  preset-applied: '&7Preset aplicado: {preset}'
+  presets: '&7Presets disponíveis: &f{presets}'
+
+admin:
+  joined: '&b{player} &7agora é espectador.'
+  left: '&b{player} &7não é mais espectador.'
+  list: '&7Espectadores (&b{count}&7): &f{players}'
+  frozen: '&b{player} &7foi imobilizado.'
+  unfrozen: '&b{player} &7foi liberado.'
+  eliminated: '&c{player} &7foi eliminado.'
+  mode: '&7Modo atual: &b{mode}'
+  mode-set: '&7Modo alterado para &b{mode} &8(temporário, edite config.yml para mantê-lo)'
+  game-updated: '&7Partida: ação &b{action} &7realizada.'
+  event-fired: '&7Evento &b{event} &7disparado.'
+  filters-reset: '&7Filtros de &b{player} &7redefinidos.'
+  filters-reset-all: '&7Filtros de todos os jogadores conectados redefinidos.'
+  reloaded: '&aConfiguração recarregada.'
+
+errors:
+  no-permission: '&cVocê não tem permissão.'
+  player-only: '&cComando reservado aos jogadores.'
+  not-spectator: '&cVocê precisa ser espectador.'
+  not-spectator-other: '&c{player} não é espectador.'
+  already-spectator: '&c{player} já é espectador.'
+  enter-refused: '&cNão foi possível tornar {player} espectador (recusado por um plugin).'
+  leave-refused: '&cNão foi possível tirar {player} do modo espectador (recusado por um plugin).'
+  player-not-found: '&cJogador não encontrado: {player}'
+  invalid-target: '&cAlvo inválido.'
+  no-players: '&cNenhum jogador para seguir.'
+  unknown-command: '&cComando desconhecido. &7/{label} help'
+  unknown-preset: '&cPreset desconhecido: {preset}'
+  unknown-event: '&cEvento desconhecido: {event}'
+  usage: '&cUso: &7{usage}'
+  filter-locked: '&cEste filtro está bloqueado.'
+  command-blocked: '&cEste comando é proibido no modo espectador.'
+  unknown-language: '&cIdioma desconhecido: {language}'
+
+# ============================================================================
+#                                 MENUS
+# ============================================================================
+gui:
+  common:
+    back: '&7← Voltar'
+    close: '&cFechar'
+    next: '&aPróxima página →'
+    previous: '&a← Página anterior'
+    page: '&fPágina {page}/{pages}'
+    enabled: '&aAtivado'
+    disabled: '&cDesativado'
+    locked: '&8Bloqueado'
+    click-toggle: '&eClique para alterar'
+    'yes': '&aSim'
+    'no': '&cNão'
+    all: 'todos'
+    unlimited: 'ilimitado'
+    blocks: 'blocos'
+    number-help:
+      - '&eClique esquerdo: +{step} &7| &eClique direito: -{step}'
+      - '&eShift: x4 &7| &eClique do meio: voltar a 0'
+
+  main:
+    title: '&8Spectator Plus'
+    info:
+      name: '&bInformações da partida'
+      description: [ '&7Duração, jogadores, borda, episódio...' ]
+      lore:
+        - '&7Estado: &f{state}'
+        - '&7Alvo: &f{target}'
+        - '&7Preset: &f{preset}'
+    teleport:
+      name: '&bTeleporte'
+      lore: [ '&7Teleportar até um jogador vivo.' ]
+    players:
+      name: '&eJogadores'
+      lore: [ '&7Lista detalhada e fichas dos jogadores.' ]
+    follow:
+      name: '&aSeguir um jogador'
+      lore: [ '&7Clique esquerdo: escolher um jogador', '&7Clique direito: parar de seguir' ]
+    pov:
+      name: '&dVisão em primeira pessoa'
+      lore: [ '&7Ver pelos olhos de um jogador.' ]
+    history:
+      name: '&6Histórico de eventos'
+      lore: [ '&7Tudo o que aconteceu na partida.' ]
+    inventories:
+      name: '&6Inventários'
+      lore: [ '&7Consultar o inventário de um jogador.' ]
+    filters:
+      name: '&cFiltros'
+      lore: [ '&7Escolher os eventos exibidos.' ]
+    settings:
+      name: '&7Configurações'
+      lore: [ '&7Velocidade de voo, HUD, sons...' ]
+    leave:
+      name: '&cSair do modo espectador'
+      lore: [ '&7Recuperar seu estado original.' ]
+
+  players:
+    title:
+      teleport: '&8Teleporte &7({page})'
+      players: '&8Jogadores &7({page})'
+      follow: '&8Seguir um jogador &7({page})'
+      pov: '&8Visão POV &7({page})'
+      inventory: '&8Inventários &7({page})'
+    name: '&e{player}'
+    lore:
+      - '&c❤ &f{health}&7/{max_health}  &6Fome &f{food}  &a✦ &f{level}'
+      - '&7Mundo: &f{world} &8({x}, {y}, {z})'
+      - '&7Distância: &f{distance}m'
+      - '&7Time: &f{team}'
+      - '&7Kills: &f{kills}'
+    followed: '&b► Seguido atualmente'
+    click:
+      teleport: [ '', '&eClique para teleportar' ]
+      players: [ '', '&eClique para abrir a ficha' ]
+      follow: [ '', '&eClique para seguir este jogador' ]
+      pov: [ '', '&eClique para ver pelos olhos dele' ]
+      inventory: [ '', '&eClique esquerdo: inventário', '&eClique direito: baú do ender' ]
+    empty: '&cNenhum jogador vivo'
+    count: '&7{count} jogador(es) vivo(s)'
+
+  sheet:
+    title: '&8Ficha de {player}'
+    head:
+      - '&7Time: &f{team}'
+      - '&7Modo de jogo: &f{gamemode}'
+      - '&7Vivo: {alive}'
+    health: '&cVida: &f{health}&7/{max_health} ❤'
+    absorption: '&7Absorção: &e{absorption} ❤'
+    food: '&6Fome: &f{food}&7/20 &8(saturação {saturation})'
+    level: '&aNível: &f{level}'
+    effects: '&5Efeitos ativos'
+    effect-line: '&7- &f{effect} {level} &8({duration})'
+    no-effect: '&7Nenhum efeito'
+    location: '&bPosição'
+    location-lore:
+      - '&7Mundo: &f{world}'
+      - '&7X: &f{x} &7Y: &f{y} &7Z: &f{z}'
+      - '&7Bioma: &f{biome}'
+    stats: '&cEstatísticas'
+    stats-lore:
+      - '&7Kills: &f{kills}'
+      - '&7Mortes: &f{deaths}'
+      - '&7Sequência: &f{streak}'
+    armor: '&bArmadura'
+    teleport: '&bTeleportar'
+    follow: '&aSeguir'
+    pov: '&dVisão POV'
+    inventory: '&6Ver o inventário'
+    enderchest: '&5Ver o baú do ender'
+    favorite: '&eAdicionar aos favoritos'
+    unfavorite: '&6Remover dos favoritos'
+
+  inspect:
+    title: '&8Inventário de {player}'
+    title-enderchest: '&8Baú do ender de {player}'
+    armor-slot:
+      '0': '&7Capacete vazio'
+      '1': '&7Peitoral vazio'
+      '2': '&7Calças vazias'
+      '3': '&7Botas vazias'
+    offhand: '&7Mão secundária vazia'
+    status: '&cEstado'
+    status-lore:
+      - '&7Vida: &f{health}&7/{max_health} ❤'
+      - '&7Fome: &f{food}&7/20'
+      - '&7Nível: &f{level}'
+      - '&7Slot selecionado: &f{slot}'
+
+  history:
+    title: '&8Eventos &7({page})'
+    lore:
+      - ''
+      - '&7Hora: &f{time}'
+      - '&7Categoria: {category}'
+      - '&7Importância: &f{priority}'
+    click: '&eClique: ir até o jogador &7| &eClique direito: ir até o local'
+    empty: '&cNenhum evento'
+    show-all: '&fExibindo: &aTodos os eventos'
+    show-filtered: '&fExibindo: &eConforme meus filtros'
+    count: '&7{count} evento(s)'
+    clear: '&cLimpar o histórico &7(Shift + clique)'
+
+  filters:
+    title: '&8Filtros de eventos'
+    state:
+      enabled: '&a● Ativado'
+      disabled: '&c● Desativado'
+      partial: '&e● Parcialmente ativado'
+      locked: '&7● Indisponível'
+    category-lore:
+      - ''
+      - '&eClique esquerdo: ver os eventos'
+      - '&eClique direito: ativar / desativar'
+    customized-suffix: ' &7(modificado)'
+    preset:
+      name: '&fPreset'
+      lore: [ '&7Atual: {preset}', '&eClique para alterar' ]
+    importance:
+      name: '&6Importância mínima'
+      lore: [ '&7Atual: {importance}', '&eClique esquerdo / direito para alterar' ]
+    players:
+      name: '&eFiltros por jogadores'
+      lore: [ '&7Lista branca, lista negra, favoritos, times' ]
+    worlds:
+      name: '&2Filtros por mundo'
+      lore: [ '&7Overworld, Nether, End...' ]
+    distance:
+      name: '&bFiltros por distância'
+      lore: [ '&7Distância, chunk, mundo, zona' ]
+    damage:
+      name: '&cFiltros de dano'
+      lore: [ '&7Limites, tipos, PvP / PvE' ]
+    reset:
+      name: '&4Redefinir'
+      lore: [ '&7Voltar ao preset padrão', '&eShift + clique para confirmar' ]
+
+  category:
+    title: '&8{category}'
+    event-lore:
+      - '&8{id}'
+      - '&7Importância: {priority}'
+    forced: '&6Imposto pelo administrador'
+    disabled-admin: '&8Desativado pelo administrador'
+    enable-all: '&aAtivar tudo'
+    disable-all: '&cDesativar tudo'
+
+  presets:
+    title: '&8Presets de filtros'
+    importance: '&7Importância mínima: {importance}'
+    current: '&a✔ Preset atual'
+    click: '&eClique para aplicar'
+
+  player-filters:
+    title: '&8Filtros por jogadores'
+    head-lore:
+      - '&7Lista branca: {whitelist}'
+      - '&7Lista negra: {blacklist}'
+      - '&7Favorito: {favorite}'
+      - ''
+      - '&eClique esquerdo: favorito'
+      - '&eClique direito: lista branca'
+      - '&eShift + clique: lista negra'
+    mode:
+      name: '&fModo de filtragem'
+      lore: [ '&7Atual: {mode}', '&eClique para alterar' ]
+    hide-own: 'Ocultar meus próprios eventos'
+    teams:
+      name: '&fTimes seguidos'
+      lore: [ '&7{count} time(s) selecionado(s)', '&8Nenhum = todos', '&eClique para escolher' ]
+    help:
+      name: '&7Ajuda'
+      lore:
+        - '&7Todos: sem filtro'
+        - '&7Lista branca: apenas estes jogadores'
+        - '&7Lista negra: todos exceto estes jogadores'
+        - '&7Seguido: o jogador que você segue'
+        - '&7Favoritos: apenas seus favoritos'
+
+  team-filters:
+    title: '&8Times seguidos'
+    empty: '&cNenhum time detectado'
+    info: '&7Nenhum time marcado = todos os times'
+    clear: '&cDesmarcar tudo'
+
+  world-filters:
+    title: '&8Filtros por mundo'
+    overworld: 'Overworld'
+    nether: 'Nether'
+    end: 'End'
+    custom: 'Mundos personalizados'
+    current-only: 'Apenas meu mundo atual'
+
+  distance-filters:
+    title: '&8Filtros por distância'
+    max:
+      name: '&bDistância máxima'
+      lore: [ '&7Atual: &f{value}' ]
+    min:
+      name: '&bDistância mínima'
+      lore: [ '&7Atual: &f{value}' ]
+    same-chunk: 'Apenas o mesmo chunk'
+    same-world: 'Apenas o mesmo mundo'
+    same-zone: 'Apenas a mesma zona'
+
+  damage-filters:
+    title: '&8Filtros de dano'
+    types-title: '&8Tipos de dano'
+    min:
+      name: '&cDano mínimo (PV)'
+      lore: [ '&7Atual: &f{value}' ]
+    max:
+      name: '&cDano máximo (PV)'
+      lore: [ '&7Atual: &f{value}' ]
+    pvp-only: 'Apenas dano PvP'
+    pve-only: 'Apenas dano PvE'
+    critical-only: 'Apenas golpes críticos'
+    types:
+      name: '&6Tipos de dano'
+      lore: [ '&7Seleção: &f{count}', '&eClique para escolher' ]
+    types-info: '&7Nenhum tipo marcado = todos os tipos'
+    types-clear: '&cDesmarcar tudo'
+
+  game-info:
+    title: '&8Informações da partida'
+    duration: '&bDuração'
+    duration-lore: [ '&7Partida em andamento: {running}', '&7Duração: &f{time}' ]
+    alive: '&aJogadores vivos'
+    alive-lore: [ '&7Vivos: &f{alive}', '&7No início: &f{initial}' ]
+    dead: '&cJogadores eliminados'
+    dead-lore: [ '&7Eliminados: &f{eliminated}', '&7Espectadores: &f{spectators}' ]
+    teams: '&eTimes'
+    teams-lore: [ '&7Times restantes: &f{teams}' ]
+    border: '&6Borda do mundo'
+    border-lore: [ '&7Mundo: &f{world}', '&7Tamanho: &f{size}', '&7Centro: &f{x}, {z}' ]
+    episode: '&dEpisódio'
+    episode-lore: [ '&7Episódio atual: &f{episode}' ]
+    pvp: '&cPvP'
+    pvp-lore: [ '&7PvP ativado: {pvp}' ]
+    server: '&fServidor'
+    server-lore: [ '&7Jogadores: &f{online}', '&7TPS: &f{tps}', '&7Modo: &f{mode}' ]
+
+  settings:
+    title: '&8Configurações'
+    value: '&7Valor: &f{value}'
+    left-right: '&eClique esquerdo: + &7| &eClique direito: -'
+    fly-speed:
+      name: '&bVelocidade de voo'
+      lore: [ '&7Velocidade de deslocamento em voo.' ]
+    see-spectators:
+      name: '&bVer os espectadores'
+      lore: [ '&7Mostrar os outros espectadores.' ]
+    sounds:
+      name: '&eSons'
+      lore: [ '&7Sons dos menus e notificações.' ]
+    action-bar:
+      name: '&fHUD (barra de ação)'
+      lore: [ '&7Informações do jogador seguido', '&7acima da barra de inventário.' ]
+    titles:
+      name: '&cTítulos'
+      lore: [ '&7Título na tela para', '&7eventos críticos.' ]
+    chat-events:
+      name: '&7Eventos no chat'
+      lore: [ '&7Receber o fluxo de eventos.' ]
+    show-time:
+      name: '&7Hora dos eventos'
+      lore: [ '&7Mostrar a hora antes de cada mensagem.' ]
+    rate-limit:
+      name: '&6Antispam'
+      lore: [ '&7Número máximo de mensagens', '&7por segundo (exceto importantes).' ]
+    follow-distance:
+      name: '&aDistância de acompanhamento'
+      lore: [ '&7Distância da câmera no modo seguir.' ]
+    noclip:
+      name: '&bAtravessar paredes'
+      lore: [ '&7Atravessar os blocos voando.' ]
+    language:
+      name: '&fIdioma'
+      lore: [ '&7Idioma das mensagens e menus.' ]
+      auto: 'Automático ({language})'
+
+# ============================================================================
+#                          BARRA DE INVENTÁRIO
+# ============================================================================
+hotbar:
+  teleport:
+    name: '&bTeleporte &7(clique direito)'
+    lore: [ '&7Lista dos jogadores vivos', '&7para teleportar.' ]
+  players:
+    name: '&eJogadores &7(clique direito)'
+    lore: [ '&7Vida, time, dimensão...', '&7e fichas dos jogadores.' ]
+  follow:
+    name: '&aSeguir um jogador'
+    lore: [ '&7Clique direito: escolher / próximo', '&7Clique esquerdo: anterior', '&7Agachar + clique: parar' ]
+  events:
+    name: '&6Eventos'
+    lore: [ '&7Histórico da partida' ]
+  menu:
+    name: '&dMenu Spectator Plus'
+    lore: [ '&7Todas as funções' ]
+  inventories:
+    name: '&6Inventários'
+    lore: [ '&7Consultar um inventário', '&7Clique direito num jogador: baú do ender' ]
+  filters:
+    name: '&cFiltros'
+    lore: [ '&7Escolher os eventos exibidos' ]
+  info:
+    name: '&bInformações da partida'
+  settings:
+    name: '&7Configurações'
+  leave:
+    name: '&cSair do modo espectador'
+
+# ============================================================================
+#                               PRESETS
+# ============================================================================
+presets:
+  all:
+    name: '&aMostrar tudo'
+    description: [ '&7Todos os eventos disponíveis.' ]
+  standard:
+    name: '&fPadrão'
+    description: [ '&7Os eventos úteis', '&7para acompanhar uma partida.' ]
+  pvp:
+    name: '&cPvP'
+    description: [ '&7Combates, danos altos,', '&7jogadores fracos, kills, assistências,', '&7mortes e totens.' ]
+  exploration:
+    name: '&2Exploração'
+    description: [ '&7Dimensões, estruturas, biomas,', '&7deslocamentos e minérios.' ]
+  caster:
+    name: '&dCaster'
+    description: [ '&7Para narrar uma partida:', '&7combates, jogadores fracos, kills,', '&7mortes, minérios importantes,', '&7dimensões, itens importantes', '&7e progresso geral.' ]
+  minimal:
+    name: '&7Mínimo'
+    description: [ '&7Apenas os eventos principais.' ]
+  custom:
+    name: '&ePersonalizado'
+    description: [ '&7Tudo ativado:', '&7escolha você mesmo seus filtros.' ]
+
+# ============================================================================
+#                           NOMES DOS EVENTOS
+# ============================================================================
+event-names:
+  world:
+    nether_enter: 'Entrada no Nether'
+    nether_leave: 'Saída do Nether'
+    end_enter: 'Entrada no End'
+    end_leave: 'Saída do End'
+    change: 'Mudança de mundo'
+    end_gateway: 'Uso de um End Gateway'
+    nether_portal: 'Portal do Nether'
+    end_portal: 'Portal do End'
+    zone_enter: 'Entrada numa zona'
+    zone_leave: 'Saída de uma zona'
+    coordinate: 'Coordenada alcançada'
+    structure: 'Estrutura descoberta'
+    biome: 'Bioma descoberto'
+    altitude: 'Altitude alcançada'
+    depth: 'Profundidade alcançada'
+    spawn_away: 'Afastamento do spawn'
+    spawn_approach: 'Aproximação do spawn'
+    border_cross: 'Travessia da borda'
+    border_start: 'A borda se move'
+    border_stop: 'A borda para'
+    border_size: 'Tamanho da borda alcançado'
+  mining:
+    block_break: 'Bloco minerado'
+    block_place: 'Bloco colocado'
+    first_diamond: 'Primeiro diamante'
+    first_gold: 'Primeiro ouro'
+    first_debris: 'Primeiro detrito ancestral'
+    block_count: 'X blocos do mesmo tipo'
+    diamond_count: 'X diamantes minerados'
+    gold_count: 'X minérios de ouro minerados'
+    debris_count: 'X detritos ancestrais minerados'
+    spawner_break: 'Gerador quebrado'
+    rare_place: 'Bloco raro colocado'
+    first_ore: 'Primeiro minério'
+    silk_touch: 'Mineração com Toque suave'
+    fortune: 'Mineração com Fortuna'
+  player:
+    damage: 'Dano recebido'
+    big_damage: 'Dano alto'
+    low_health: 'Vida baixa'
+    health_recovered: 'Vida recuperada'
+    totem: 'Totem da imortalidade'
+    golden_apple: 'Maçã dourada'
+    enchanted_golden_apple: 'Maçã de Notch'
+    potion: 'Uso de uma poção'
+    effect_gain: 'Efeito recebido'
+    effect_lose: 'Efeito perdido'
+    absorption_gain: 'Absorção obtida'
+    absorption_lose: 'Absorção perdida'
+    xp_level: 'Nível de XP alcançado'
+    ender_pearl: 'Pérola do ender'
+    item_use: 'Item usado'
+    armor_equip: 'Armadura equipada'
+    armor_full: 'Armadura completa'
+    join: 'Entrada'
+    quit: 'Saída'
+    reconnect: 'Reconexão'
+    afk: 'AFK'
+    afk_back: 'Volta do AFK'
+  pvp:
+    attack: 'Ataque'
+    first_hit: 'Primeiro golpe'
+    combat_start: 'Início de combate'
+    combat_end: 'Fim de combate'
+    damage_dealt: 'Dano causado'
+    damage_taken: 'Dano recebido (PvP)'
+    critical: 'Golpe crítico'
+    bow_shot: 'Disparo de longa distância'
+    trident: 'Atingido por um tridente'
+    shield_block: 'Golpe bloqueado com escudo'
+    shield_break: 'Escudo desativado'
+    assist: 'Assistência'
+    first_kill: 'Primeiro kill'
+    double_kill: 'Kill duplo'
+    triple_kill: 'Kill triplo'
+    kill_streak: 'Sequência de kills'
+    streak_end: 'Fim de uma sequência'
+    repeat_kill: 'Kills repetidos'
+  death:
+    death: 'Morte'
+    eliminated: 'Eliminação'
+    first_death: 'Primeira morte'
+    killed_by_player: 'Morto por um jogador'
+    pve: 'Morte PvE'
+    fall: 'Morte por queda'
+    lava: 'Morte na lava'
+    fire: 'Morte no fogo'
+    explosion: 'Morte por explosão'
+    mob: 'Morto por uma criatura'
+    void: 'Morte no vazio'
+    border: 'Morte pela borda'
+    after_totem: 'Morte após um totem'
+    after_combat: 'Morte após um combate'
+    respawn: 'Renascimento'
+    count: 'Número de mortes'
+    players_left: 'Jogadores restantes'
+  craft:
+    craft: 'Criação'
+    first_craft: 'Primeira criação'
+    obtain: 'Item obtido'
+    pickup: 'Item coletado'
+    drop: 'Item largado'
+    amount: 'Quantidade possuída'
+    item_use: 'Item usado'
+    item_break: 'Ferramenta / armadura quebrada'
+  enchant:
+    enchant: 'Encantamento'
+    specific: 'Encantamento específico'
+    level: 'Encantamento de alto nível'
+    weapon: 'Arma encantada'
+    armor: 'Armadura encantada'
+    anvil: 'Uso de uma bigorna'
+    combine: 'Combinação de itens'
+    book: 'Livro encantado aplicado'
+  pve:
+    attack: 'Ataque a uma criatura'
+    kill: 'Criatura morta'
+    damage: 'Dano de uma criatura'
+    first_kill: 'Primeira criatura de um tipo'
+    kill_count: 'X criaturas mortas'
+    encounter: 'Encontro com uma criatura'
+    boss_kill: 'Chefe derrotado'
+    dragon_attack: 'Ataque ao Ender Dragon'
+    dragon_kill: 'Ender Dragon derrotado'
+    wither_attack: 'Ataque ao Wither'
+    wither_kill: 'Wither derrotado'
+    wither_summon: 'Wither invocado'
+    warden_trigger: 'Warden despertado'
+    warden_kill: 'Warden morto'
+  potion:
+    drink: 'Poção bebida'
+    splash: 'Poção arremessável'
+    lingering: 'Poção persistente'
+    positive: 'Efeito positivo'
+    negative: 'Efeito negativo'
+    strength: 'Força'
+    speed: 'Velocidade'
+    resistance: 'Resistência'
+    regeneration: 'Regeneração'
+    poison: 'Veneno'
+    weakness: 'Fraqueza'
+    slowness: 'Lentidão'
+    milk: 'Leite'
+  game:
+    start: 'Início da partida'
+    end: 'Fim da partida'
+    time: 'Tempo de jogo'
+    pvp_start: 'Início do PvP'
+    grace_end: 'Fim do período de graça'
+    episode_start: 'Início de episódio'
+    episode_end: 'Fim de episódio'
+    players_left: 'Jogadores restantes'
+    teams_left: 'Times restantes'
+    half_eliminated: 'Metade dos jogadores eliminados'
+    last_survivor: 'Último sobrevivente'
+    team_win: 'Vitória de time'
+    player_win: 'Vitória'
+
+# ============================================================================
+#                         MENSAGENS DOS EVENTOS
+# ============================================================================
+event-messages:
+  world:
+    nether_enter: '&c{player} &7entra no &cNether'
+    nether_leave: '&c{player} &7sai do Nether'
+    end_enter: '&5{player} &7entra no &5End&7!'
+    end_leave: '&5{player} &7sai do End'
+    change: '&e{player} &7passa de &f{from} &7para &f{to}'
+    end_gateway: '&d{player} &7usa um End Gateway'
+    nether_portal: '&c{player} &7usa um portal do Nether'
+    end_portal: '&5{player} &7pula num portal do End'
+    zone_enter: '&e{player} &7entra na zona &f{zone}'
+    zone_leave: '&e{player} &7sai da zona &f{zone}'
+    coordinate: '&e{player} &7alcançou &f{target}'
+    structure: '&e{player} &7descobre uma estrutura: &f{structure}'
+    biome: '&e{player} &7descobre o bioma &f{biome}'
+    altitude: '&e{player} &7passa da altitude &fY={altitude}'
+    depth: '&e{player} &7desce abaixo de &fY={depth}'
+    spawn_away: '&e{player} &7está a mais de &f{distance} blocos &7do spawn'
+    spawn_approach: '&e{player} &7volta a menos de &f{distance} blocos &7do spawn'
+    border_cross: '&c{player} &7está fora da borda!'
+    border_start: '&6A borda de &f{world} &6{direction}! &7(tamanho {size})'
+    border_stop: '&6A borda de &f{world} &6parou &7(tamanho {size})'
+    border_size: '&6A borda de &f{world} &6atinge &f{size} blocos'
+  mining:
+    block_break: '&7{player} minera &f{block}'
+    block_place: '&7{player} coloca &f{block}'
+    first_diamond: '&b{player} &7encontra seu &bprimeiro diamante&7!'
+    first_gold: '&6{player} &7encontra seu &6primeiro ouro'
+    first_debris: '&8{player} &7encontra seu &8primeiro detrito ancestral&7!'
+    block_count: '&7{player} minerou &f{amount} {block}'
+    diamond_count: '&b{player} &7minerou &b{amount} diamantes'
+    gold_count: '&6{player} &7minerou &6{amount} minérios de ouro'
+    debris_count: '&8{player} &7minerou &8{amount} detritos ancestrais'
+    spawner_break: '&e{player} &7quebra um &fgerador'
+    rare_place: '&e{player} &7coloca um bloco raro: &f{block}'
+    first_ore: '&e{player} &7encontra seu primeiro minério de &f{ore}'
+    silk_touch: '&7{player} minera &f{block} &7com Toque suave'
+    fortune: '&7{player} minera &f{block} &7com Fortuna {level}'
+  player:
+    damage: '&7{player} recebe &c{damage}❤ &7({damage_type})'
+    big_damage: '&c{player} &7recebe &c{damage}❤ &7num só golpe! &8({damage_type})'
+    low_health: '&c{player} &7fica abaixo de &c{threshold}❤&7!'
+    health_recovered: '&a{player} &7volta a passar de &a{threshold}❤'
+    totem: '&e{player} &6usa um Totem da imortalidade!'
+    golden_apple: '&6{player} &7come uma &6maçã dourada'
+    enchanted_golden_apple: '&d{player} &7come uma &dmaçã de Notch&7!'
+    potion: '&5{player} &7usa uma poção de &f{potion}'
+    effect_gain: '&5{player} &7recebe &f{effect} {effect_level} &8({effect_duration})'
+    effect_lose: '&5{player} &7perde o efeito &f{effect}'
+    absorption_gain: '&e{player} &7obtém &e{hearts}❤ &7de absorção'
+    absorption_lose: '&e{player} &7perde sua absorção'
+    xp_level: '&a{player} &7alcança o nível &a{level}'
+    ender_pearl: '&3{player} &7lança uma pérola do ender'
+    item_use: '&7{player} usa &f{item}'
+    armor_equip: '&7{player} equipa &f{item}'
+    armor_full: '&b{player} &7veste uma armadura completa de &b{armor}'
+    join: '&a+ &7{player} entra na partida'
+    quit: '&c- &7{player} sai da partida'
+    reconnect: '&a+ &7{player} se reconecta'
+    afk: '&7{player} está AFK há &f{duration}'
+    afk_back: '&7{player} não está mais AFK'
+  pvp:
+    attack: '&7{attacker} ataca {victim}'
+    first_hit: '&c{attacker} &7dá o primeiro golpe em &c{victim}'
+    combat_start: '&c⚔ &f{attacker} &7inicia um combate contra &f{victim}'
+    combat_end: '&7Fim do combate entre &f{attacker} &7e &f{victim} &8({duration})'
+    damage_dealt: '&7{attacker} causa &c{damage}❤ &7em {victim}'
+    damage_taken: '&7{victim} recebe &c{damage}❤ &7de {attacker}'
+    critical: '&e{attacker} &7dá um golpe crítico em {victim} &8({damage}❤)'
+    bow_shot: '&e{attacker} &7acerta &f{victim} &7a &e{distance} blocos&7!'
+    trident: '&b{victim} &7é atingido pelo tridente de &b{attacker}'
+    shield_block: '&7{victim} bloqueia um golpe de {attacker} com o escudo'
+    shield_break: '&e{attacker} &7desativa o escudo de &e{victim}'
+    assist: '&7{assist} &7ajuda &f{killer} &7a eliminar &f{victim}'
+    first_kill: '&4☠ &c{killer} &7faz o &cprimeiro kill &7da partida em &f{victim}&7!'
+    double_kill: '&6{killer} &7faz um &6KILL DUPLO&7!'
+    triple_kill: '&c{killer} &7faz um &c&lKILL TRIPLO&7!'
+    kill_streak: '&6{killer} &7está numa sequência de &6{streak} kills&7!'
+    streak_end: '&c{killer} &7encerra a sequência de &f{streak} kills &7de &f{victim}'
+    repeat_kill: '&e{killer} &7mata &f{victim} &7pela &e{amount}ª &7vez'
+  death:
+    death: '&7☠ {dead_player} morreu &8({death_cause})'
+    eliminated: '&4✖ &c{dead_player} &7foi eliminado! &8({alive} jogadores restantes)'
+    first_death: '&4☠ &c{dead_player} &7é a &cprimeira morte &7da partida'
+    killed_by_player: '&4☠ &c{dead_player} &7foi morto por &c{killer} &8({weapon})'
+    pve: '&7☠ {dead_player} morreu &8({death_cause})'
+    fall: '&7☠ {dead_player} sofreu uma queda fatal'
+    lava: '&7☠ {dead_player} acabou na lava'
+    fire: '&7☠ {dead_player} queimou até a morte'
+    explosion: '&7☠ {dead_player} explodiu'
+    mob: '&7☠ {dead_player} foi morto por um &f{mob}'
+    void: '&7☠ {dead_player} caiu no vazio'
+    border: '&7☠ {dead_player} foi morto pela borda'
+    after_totem: '&7☠ {dead_player} morre &f{seconds}s &7depois de usar um totem'
+    after_combat: '&7☠ {dead_player} morre &f{seconds}s &7depois de um combate'
+    respawn: '&7{player} renasce'
+    count: '&7{player} morreu &f{amount} vezes'
+    players_left: '&6Restam apenas &e{players} jogadores &6vivos!'
+  craft:
+    craft: '&7{player} cria &f{crafted_amount}x {crafted_item}'
+    first_craft: '&e{player} &7cria seu primeiro &f{crafted_item}'
+    obtain: '&e{player} &7obtém &f{item}'
+    pickup: '&7{player} coleta &f{item_amount}x {item}'
+    drop: '&7{player} larga &f{item_amount}x {item}'
+    amount: '&e{player} &7possui &f{item_amount} {item}'
+    item_use: '&7{player} usa &f{item}'
+    item_break: '&7{player} quebra seu &f{item}'
+  enchant:
+    enchant: '&d{player} &7encanta &f{enchanted_item} &8({enchantments})'
+    specific: '&d{player} &7obtém &f{enchantment} {enchantment_level} &7em {enchanted_item}'
+    level: '&d{player} &7obtém um encantamento de nível &f{enchantment_level}'
+    weapon: '&d{player} &7encanta sua arma: &f{enchantments}'
+    armor: '&d{player} &7encanta sua armadura: &f{enchantments}'
+    anvil: '&7{player} usa uma bigorna &8({item})'
+    combine: '&7{player} combina &f{enchanted_item}'
+    book: '&d{player} &7aplica &f{enchantment} {enchantment_level} &7em {enchanted_item}'
+  pve:
+    attack: '&7{player} ataca um &f{mob}'
+    kill: '&7{player} mata um &f{mob}'
+    damage: '&7{player} recebe &c{damage}❤ &7de um &f{mob}'
+    first_kill: '&a{player} &7mata seu primeiro &f{mob}'
+    kill_count: '&a{player} &7matou &f{amount} {mob}'
+    encounter: '&7{player} é alvo de um &f{mob}'
+    boss_kill: '&5{player} &7acaba de derrotar &5{mob}&7!'
+    dragon_attack: '&5{player} &7ataca o &5Ender Dragon &8({mob_health}❤ restantes)'
+    dragon_kill: '&5&l{player} &5derrotou o Ender Dragon!'
+    wither_attack: '&8{player} &7ataca o &8Wither &8({mob_health}❤ restantes)'
+    wither_kill: '&8&l{player} &7derrotou o Wither!'
+    wither_summon: '&8{player} &7invoca o &8&lWither&7!'
+    warden_trigger: '&3{player} &7acordou um &3Warden&7!'
+    warden_kill: '&3&l{player} &7matou um Warden!'
+  potion:
+    drink: '&5{player} &7bebe uma poção de &f{potion}'
+    splash: '&5{player} &7arremessa uma poção de &f{potion}'
+    lingering: '&5{player} &7arremessa uma poção persistente de &f{potion}'
+    positive: '&a{player} &7recebe &a{effect} {effect_level}'
+    negative: '&c{player} &7sofre &c{effect} {effect_level}'
+    strength: '&4{player} &7recebe &4Força {effect_level} &8({effect_duration})'
+    speed: '&b{player} &7recebe &bVelocidade {effect_level}'
+    resistance: '&7{player} recebe &fResistência {effect_level}'
+    regeneration: '&d{player} &7recebe &dRegeneração {effect_level}'
+    poison: '&2{player} &7está envenenado &8(nível {effect_level})'
+    weakness: '&8{player} &7recebe &8Fraqueza {effect_level}'
+    slowness: '&8{player} &7recebe &8Lentidão {effect_level}'
+    milk: '&f{player} &7bebe leite e remove seus efeitos'
+  game:
+    start: '&a&l▶ A partida começou! &7({players} jogadores)'
+    end: '&c&l■ Fim da partida! &7(duração {time})'
+    time: '&b⌚ &f{minutes} minutos &7de jogo se passaram'
+    pvp_start: '&c&l⚔ O PvP está ativado!'
+    grace_end: '&6O período de graça acabou!'
+    episode_start: '&e━━ Início do episódio &6{episode} &e━━'
+    episode_end: '&7Fim do episódio {episode}'
+    players_left: '&6Restam &e{players} jogadores'
+    teams_left: '&6Restam &e{teams} times &6em jogo!'
+    half_eliminated: '&6Metade dos jogadores foi eliminada! &7({players}/{initial})'
+    last_survivor: '&6&l{player} &eé o último sobrevivente!'
+    team_win: '&6&l✪ O time {team} vence a partida!'
+    player_win: '&6&l✪ {player} vence a partida!'

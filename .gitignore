@@ -2,3 +2,6 @@ target/
 .idea/
 *.iml
 out/
+build/
+.gradle/
+run/
