@@ -1,0 +1,91 @@
+name: SpectatorPlus
+version: '${project.version}'
+main: fr.spectatorplus.SpectatorPlus
+# api-version 1.13 : ignoré en 1.8-1.12, désactive le mode "legacy" sur 1.13 → 26.x
+api-version: '1.13'
+author: Emeric
+description: Advanced spectator system - events feed, filters, follow, POV, inventory inspection and developer API.
+softdepend: [PlaceholderAPI]
+load: POSTWORLD
+
+commands:
+  spectatorplus:
+    description: Spectator Plus main command
+    usage: /<command> help
+    aliases: [spec, sp, spectate]
+
+permissions:
+  spectatorplus.use:
+    description: Utiliser la commande /spec
+    default: true
+  spectatorplus.join:
+    description: Passer soi-même en spectateur
+    default: op
+  spectatorplus.join.others:
+    description: Passer un autre joueur en spectateur
+    default: op
+  spectatorplus.leave:
+    description: Quitter soi-même le mode spectateur
+    default: op
+  spectatorplus.leave.others:
+    description: Sortir un autre joueur du mode spectateur
+    default: op
+  spectatorplus.list:
+    description: Lister les spectateurs
+    default: op
+  spectatorplus.pov:
+    description: Utiliser la vue à la première personne (POV)
+    default: true
+  spectatorplus.inspect.enderchest:
+    description: Consulter l'ender chest des joueurs
+    default: op
+  spectatorplus.events.receive:
+    description: Recevoir les évènements de partie sans être spectateur (staff, casters)
+    default: op
+  spectatorplus.see-spectators:
+    description: Voir les spectateurs sans être spectateur
+    default: false
+  spectatorplus.chat.see:
+    description: Voir le chat des spectateurs sans être spectateur
+    default: op
+  spectatorplus.bypass.commands:
+    description: Utiliser les commandes bloquées en mode spectateur
+    default: op
+  spectatorplus.freeze:
+    description: Immobiliser / libérer un spectateur
+    default: op
+  spectatorplus.game:
+    description: Piloter la partie (/spec game, /spec eliminate)
+    default: op
+  spectatorplus.reload:
+    description: Recharger la configuration
+    default: op
+  spectatorplus.admin:
+    description: Accès administrateur complet
+    default: op
+    children:
+      spectatorplus.join: true
+      spectatorplus.join.others: true
+      spectatorplus.leave: true
+      spectatorplus.leave.others: true
+      spectatorplus.list: true
+      spectatorplus.inspect.enderchest: true
+      spectatorplus.events.receive: true
+      spectatorplus.chat.see: true
+      spectatorplus.bypass.commands: true
+      spectatorplus.freeze: true
+      spectatorplus.game: true
+      spectatorplus.reload: true
+      spectatorplus.filter.*: true
+  spectatorplus.filter.*:
+    description: Accès à tous les filtres restreints
+    default: op
+    children:
+      spectatorplus.filter.pvp: true
+      spectatorplus.filter.player: true
+      spectatorplus.filter.damage: true
+      spectatorplus.filter.world: true
+      spectatorplus.filter.custom: true
+      spectatorplus.filter.distance: true
+      spectatorplus.filter.importance: true
+      spectatorplus.filter.preset: true

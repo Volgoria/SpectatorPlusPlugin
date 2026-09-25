@@ -1,0 +1,630 @@
+# ============================================================================
+#                      SPECTATOR PLUS - ÉVÈNEMENTS DU CHAT
+# ============================================================================
+# Chaque évènement possède :
+#   enabled  : true / false
+#   priority : LOW, NORMAL, IMPORTANT, CRITICAL (filtre « niveau d'importance »)
+#   message  : (optionnel) message imposé pour TOUTES les langues. Par défaut, les messages
+#              sont dans les fichiers de langue : lang/<langue>.yml → event-messages
+#   cooldown : délai minimum (secondes) entre deux messages pour un même joueur (optionnel)
+#   + des paramètres propres à l'évènement (listes, seuils...)
+#
+# Listes : vide = tout accepter (sauf mention contraire). Les noms legacy (1.8-1.12)
+# et modernes peuvent être mélangés. « * » en fin de nom = préfixe (ex : DIAMOND_*).
+#
+# Placeholders communs : {player} {world} {x} {y} {z} {health} {team}
+#   {event_name} {event_category} {event_priority} {event_time} {spectator}
+#   {online_players} {spectator_count} {alive_players} {server_tps} {world_time}
+# Les noms et messages traduits sont dans lang/<langue>.yml (event-names / event-messages).
+# Les évènements personnalisés (API) peuvent aussi être configurés ici :
+#   ex : l'évènement « uhc.episode.start » se configure sous uhc: episode: start:
+# ============================================================================
+
+# Valeur de « enabled » pour les évènements natifs absents de ce fichier
+default-enabled: true
+
+# ---------------------------------------------------------------- MONDE ET DIMENSION
+world:
+  nether_enter:
+    enabled: true
+    priority: NORMAL
+  nether_leave:
+    enabled: true
+    priority: LOW
+  end_enter:
+    enabled: true
+    priority: IMPORTANT
+  end_leave:
+    enabled: true
+    priority: NORMAL
+  change:
+    enabled: false
+    priority: LOW
+    # Mondes concernés (vide = tous)
+    worlds: [ ]
+  end_gateway:
+    enabled: true
+    priority: NORMAL
+  nether_portal:
+    enabled: false
+    priority: LOW
+  end_portal:
+    enabled: true
+    priority: IMPORTANT
+  zone_enter:
+    enabled: true
+    priority: NORMAL
+    # Zones concernées (ids de config.yml → zones, vide = toutes)
+    zones: [ ]
+  zone_leave:
+    enabled: false
+    priority: LOW
+    zones: [ ]
+  coordinate:
+    enabled: false
+    priority: NORMAL
+    # Coordonnées à surveiller (y optionnel)
+    targets:
+      - { name: 'le centre', world: world, x: 0, z: 0, radius: 10 }
+  structure:
+    enabled: true
+    priority: NORMAL
+    # 1.19+ uniquement. Vide = toutes
+    structures: [ STRONGHOLD, FORTRESS, BASTION_REMNANT, END_CITY, ANCIENT_CITY, MANSION, MONUMENT, TRIAL_CHAMBERS ]
+  biome:
+    enabled: false
+    priority: LOW
+    # Obligatoire : liste des biomes surveillés (noms legacy acceptés)
+    biomes: [ MUSHROOM_FIELDS, MUSHROOM_ISLAND, BADLANDS, MESA, ICE_SPIKES, DEEP_DARK, CHERRY_GROVE ]
+  altitude:
+    enabled: false
+    priority: LOW
+    heights: [ 200 ]
+  depth:
+    enabled: false
+    priority: LOW
+    depths: [ 12, -40 ]
+  spawn_away:
+    enabled: false
+    priority: LOW
+    distances: [ 500, 1000 ]
+  spawn_approach:
+    enabled: false
+    priority: NORMAL
+    distances: [ 100 ]
+  border_cross:
+    enabled: true
+    priority: NORMAL
+    cooldown: 30
+  border_start:
+    enabled: true
+    priority: IMPORTANT
+  border_stop:
+    enabled: true
+    priority: NORMAL
+  border_size:
+    enabled: true
+    priority: IMPORTANT
+    sizes: [ 1000, 500, 250, 100 ]
+
+# ---------------------------------------------------------------- MINAGE DE BLOCS
+mining:
+  block_break:
+    enabled: false
+    priority: LOW
+    blocks: [ EMERALD_ORE, DEEPSLATE_EMERALD_ORE ]
+  block_place:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    blocks: [ TNT, LAVA, END_CRYSTAL ]
+  first_diamond:
+    enabled: true
+    priority: IMPORTANT
+  first_gold:
+    enabled: true
+    priority: NORMAL
+  first_debris:
+    enabled: true
+    priority: IMPORTANT
+  block_count:
+    enabled: false
+    priority: LOW
+    blocks: [ OBSIDIAN, LAPIS_ORE, REDSTONE_ORE ]
+    amounts: [ 16, 32, 64 ]
+  diamond_count:
+    enabled: true
+    priority: IMPORTANT
+    amounts: [ 5, 10, 20, 32 ]
+  gold_count:
+    enabled: true
+    priority: NORMAL
+    amounts: [ 16, 32, 64 ]
+  debris_count:
+    enabled: true
+    priority: IMPORTANT
+    amounts: [ 4, 8, 16 ]
+  spawner_break:
+    enabled: true
+    priority: NORMAL
+  rare_place:
+    enabled: true
+    priority: NORMAL
+    # Obligatoire
+    blocks: [ BEACON, DRAGON_EGG, ENCHANTING_TABLE, ENCHANTMENT_TABLE, END_CRYSTAL, RESPAWN_ANCHOR ]
+  first_ore:
+    enabled: true
+    priority: NORMAL
+    # Obligatoire
+    ores: [ EMERALD_ORE, DEEPSLATE_EMERALD_ORE, LAPIS_ORE, DEEPSLATE_LAPIS_ORE ]
+  silk_touch:
+    enabled: false
+    priority: LOW
+    blocks: [ DIAMOND_ORE, DEEPSLATE_DIAMOND_ORE, EMERALD_ORE, SPAWNER, MOB_SPAWNER ]
+  fortune:
+    enabled: false
+    priority: LOW
+    blocks: [ DIAMOND_ORE, DEEPSLATE_DIAMOND_ORE ]
+    min-level: 2
+
+# ---------------------------------------------------------------- JOUEURS
+player:
+  damage:
+    enabled: true
+    priority: LOW
+    # Types de dégâts (vide = tous) : FALL, LAVA, FIRE, ENTITY_ATTACK, PROJECTILE...
+    causes: [ ]
+    min-damage: 2
+  big_damage:
+    enabled: true
+    priority: NORMAL
+    # Nombre de cœurs
+    hearts: 4
+  low_health:
+    enabled: true
+    priority: IMPORTANT
+    hearts: [ 5, 3 ]
+  health_recovered:
+    enabled: false
+    priority: LOW
+    hearts: [ 5 ]
+  totem:
+    enabled: true
+    priority: CRITICAL
+  golden_apple:
+    enabled: true
+    priority: NORMAL
+  enchanted_golden_apple:
+    enabled: true
+    priority: IMPORTANT
+  potion:
+    enabled: false
+    priority: LOW
+    potions: [ ]
+  effect_gain:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    effects: [ INVISIBILITY, FIRE_RESISTANCE ]
+  effect_lose:
+    enabled: false
+    priority: LOW
+    effects: [ INVISIBILITY ]
+  absorption_gain:
+    enabled: false
+    priority: LOW
+    min-hearts: 2
+  absorption_lose:
+    enabled: false
+    priority: LOW
+  xp_level:
+    enabled: true
+    priority: LOW
+    levels: [ 30 ]
+  ender_pearl:
+    enabled: false
+    priority: LOW
+    cooldown: 10
+  item_use:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    items: [ FLINT_AND_STEEL, END_CRYSTAL ]
+  armor_equip:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    items: [ DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS, NETHERITE_*, ELYTRA ]
+  armor_full:
+    enabled: true
+    priority: NORMAL
+    # Préfixes de matériaux (GOLD = legacy, GOLDEN = moderne)
+    types: [ DIAMOND, NETHERITE, IRON ]
+  join:
+    enabled: true
+    priority: LOW
+  quit:
+    enabled: true
+    priority: NORMAL
+  reconnect:
+    enabled: true
+    priority: NORMAL
+  afk:
+    enabled: true
+    priority: LOW
+    seconds: 120
+  afk_back:
+    enabled: true
+    priority: LOW
+
+# ---------------------------------------------------------------- COMBAT PVP
+pvp:
+  attack:
+    enabled: false
+    priority: LOW
+    cooldown: 5
+  first_hit:
+    enabled: true
+    priority: NORMAL
+  combat_start:
+    enabled: true
+    priority: NORMAL
+    # Secondes sans dégâts avant la fin d'un combat
+    timeout: 15
+  combat_end:
+    enabled: true
+    priority: LOW
+  damage_dealt:
+    enabled: false
+    priority: LOW
+    min-damage: 3
+  damage_taken:
+    enabled: false
+    priority: LOW
+    min-damage: 3
+  critical:
+    enabled: false
+    priority: LOW
+  bow_shot:
+    enabled: true
+    priority: NORMAL
+    min-distance: 30
+  trident:
+    enabled: true
+    priority: NORMAL
+  shield_block:
+    enabled: false
+    priority: LOW
+    cooldown: 5
+  shield_break:
+    enabled: true
+    priority: NORMAL
+  assist:
+    enabled: true
+    priority: NORMAL
+    # Délai maximum depuis les derniers dégâts
+    max-seconds: 10
+  first_kill:
+    enabled: true
+    priority: CRITICAL
+  double_kill:
+    enabled: true
+    priority: IMPORTANT
+    max-seconds: 10
+  triple_kill:
+    enabled: true
+    priority: CRITICAL
+    max-seconds: 15
+  kill_streak:
+    enabled: true
+    priority: IMPORTANT
+    amounts: [ 3, 5, 7, 10 ]
+  streak_end:
+    enabled: true
+    priority: IMPORTANT
+    min-kills: 3
+  repeat_kill:
+    enabled: true
+    priority: NORMAL
+    amounts: [ 2, 3 ]
+
+# ---------------------------------------------------------------- MORT / ÉLIMINATION
+death:
+  death:
+    enabled: false
+    priority: NORMAL
+  eliminated:
+    enabled: true
+    priority: IMPORTANT
+  first_death:
+    enabled: true
+    priority: CRITICAL
+  killed_by_player:
+    enabled: true
+    priority: IMPORTANT
+  pve:
+    enabled: true
+    priority: NORMAL
+    causes: [ ]
+  fall:
+    enabled: false
+    priority: NORMAL
+  lava:
+    enabled: false
+    priority: NORMAL
+  fire:
+    enabled: false
+    priority: NORMAL
+  explosion:
+    enabled: false
+    priority: NORMAL
+  mob:
+    enabled: false
+    priority: NORMAL
+    entities: [ ]
+  void:
+    enabled: false
+    priority: NORMAL
+  border:
+    enabled: true
+    priority: NORMAL
+  after_totem:
+    enabled: true
+    priority: IMPORTANT
+    max-seconds: 30
+  after_combat:
+    enabled: true
+    priority: NORMAL
+    seconds: 10
+  respawn:
+    enabled: false
+    priority: LOW
+  count:
+    enabled: false
+    priority: NORMAL
+    amounts: [ 3, 5, 10 ]
+  players_left:
+    enabled: true
+    priority: IMPORTANT
+    amounts: [ 10, 5, 3, 2 ]
+
+# ---------------------------------------------------------------- CRAFTS ET OBJETS
+craft:
+  craft:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    items: [ DIAMOND_SWORD, DIAMOND_CHESTPLATE, BOW, ENCHANTING_TABLE, ENCHANTMENT_TABLE ]
+  first_craft:
+    enabled: true
+    priority: NORMAL
+    items: [ DIAMOND_SWORD, DIAMOND_PICKAXE, DIAMOND_CHESTPLATE, GOLDEN_APPLE, ENCHANTING_TABLE, ENCHANTMENT_TABLE, BREWING_STAND ]
+  obtain:
+    enabled: false
+    priority: NORMAL
+    # Obligatoire
+    items: [ NETHERITE_INGOT, TOTEM_OF_UNDYING, TOTEM, ELYTRA ]
+  pickup:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    items: [ DIAMOND, GOLDEN_APPLE ]
+  drop:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    items: [ DIAMOND, GOLDEN_APPLE ]
+  amount:
+    enabled: true
+    priority: NORMAL
+    # OBJET:quantité
+    items: [ 'DIAMOND:10', 'GOLDEN_APPLE:5', 'ENDER_PEARL:8' ]
+  item_use:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    items: [ FLINT_AND_STEEL, LAVA_BUCKET ]
+  item_break:
+    enabled: false
+    priority: LOW
+    items: [ DIAMOND_*, NETHERITE_* ]
+
+# ---------------------------------------------------------------- ENCHANTEMENTS
+enchant:
+  enchant:
+    enabled: false
+    priority: LOW
+  specific:
+    enabled: true
+    priority: NORMAL
+    # ENCHANTEMENT:niveau minimum (noms modernes ou legacy)
+    enchantments: [ 'SHARPNESS:4', 'PROTECTION:4', 'POWER:4', 'FIRE_ASPECT:2', 'FLAME:1', 'INFINITY:1' ]
+  level:
+    enabled: false
+    priority: NORMAL
+    min-level: 4
+  weapon:
+    enabled: true
+    priority: NORMAL
+    enchantments: [ ]
+  armor:
+    enabled: false
+    priority: NORMAL
+    enchantments: [ ]
+  anvil:
+    enabled: false
+    priority: LOW
+  combine:
+    enabled: false
+    priority: LOW
+    items: [ ]
+  book:
+    enabled: true
+    priority: NORMAL
+    enchantments: [ ]
+
+# ---------------------------------------------------------------- COMBAT PVE
+pve:
+  attack:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    entities: [ ELDER_GUARDIAN, EVOKER ]
+    cooldown: 30
+  kill:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    entities: [ BLAZE, WITHER_SKELETON, ENDERMAN ]
+  damage:
+    enabled: false
+    priority: LOW
+    entities: [ ]
+    min-damage: 3
+  first_kill:
+    enabled: true
+    priority: NORMAL
+    # Obligatoire
+    entities: [ BLAZE, WITHER_SKELETON, ENDERMAN, GHAST, PIGLIN_BRUTE, EVOKER ]
+  kill_count:
+    enabled: true
+    priority: NORMAL
+    # Vide = compte tous les mobs confondus
+    entities: [ BLAZE ]
+    amounts: [ 5, 10, 20 ]
+  encounter:
+    enabled: false
+    priority: LOW
+    # Obligatoire
+    entities: [ WITHER_SKELETON, BLAZE, GHAST, PIGLIN_BRUTE ]
+    cooldown: 60
+  boss_kill:
+    enabled: true
+    priority: CRITICAL
+    bosses: [ ELDER_GUARDIAN ]
+  dragon_attack:
+    enabled: true
+    priority: IMPORTANT
+    cooldown: 60
+  dragon_kill:
+    enabled: true
+    priority: CRITICAL
+  wither_attack:
+    enabled: true
+    priority: IMPORTANT
+    cooldown: 60
+  wither_kill:
+    enabled: true
+    priority: CRITICAL
+  wither_summon:
+    enabled: true
+    priority: CRITICAL
+  warden_trigger:
+    enabled: true
+    priority: IMPORTANT
+    cooldown: 60
+  warden_kill:
+    enabled: true
+    priority: CRITICAL
+
+# ---------------------------------------------------------------- POTIONS ET EFFETS
+potion:
+  drink:
+    enabled: true
+    priority: LOW
+    potions: [ ]
+  splash:
+    enabled: true
+    priority: LOW
+    potions: [ ]
+  lingering:
+    enabled: true
+    priority: NORMAL
+    potions: [ ]
+  positive:
+    enabled: false
+    priority: LOW
+    # EFFET:niveau minimum (vide = tous)
+    effects: [ ]
+  negative:
+    enabled: false
+    priority: LOW
+    effects: [ ]
+  strength:
+    enabled: true
+    priority: NORMAL
+    min-level: 1
+  speed:
+    enabled: false
+    priority: LOW
+    min-level: 2
+  resistance:
+    enabled: true
+    priority: NORMAL
+    min-level: 1
+  regeneration:
+    enabled: false
+    priority: NORMAL
+    min-level: 2
+  poison:
+    enabled: true
+    priority: NORMAL
+    min-level: 1
+  weakness:
+    enabled: true
+    priority: NORMAL
+    min-level: 1
+  slowness:
+    enabled: false
+    priority: NORMAL
+    min-level: 2
+  milk:
+    enabled: true
+    priority: LOW
+
+# ---------------------------------------------------------------- PROGRESSION DE LA PARTIE
+# Début/fin de partie, PvP, épisodes, équipes et vainqueurs sont déclenchés par l'API
+# (ou /spec game ...) car ils dépendent du plugin de jeu.
+game:
+  start:
+    enabled: true
+    priority: CRITICAL
+  end:
+    enabled: true
+    priority: CRITICAL
+  time:
+    enabled: true
+    priority: NORMAL
+    minutes: [ 10, 20, 30, 45, 60, 90, 120 ]
+  pvp_start:
+    enabled: true
+    priority: CRITICAL
+  grace_end:
+    enabled: true
+    priority: IMPORTANT
+  episode_start:
+    enabled: true
+    priority: IMPORTANT
+  episode_end:
+    enabled: true
+    priority: NORMAL
+  players_left:
+    enabled: false
+    priority: IMPORTANT
+    amounts: [ 20, 10, 5 ]
+  teams_left:
+    enabled: true
+    priority: IMPORTANT
+    amounts: [ 5, 3, 2 ]
+  half_eliminated:
+    enabled: true
+    priority: IMPORTANT
+  last_survivor:
+    enabled: true
+    priority: CRITICAL
+  team_win:
+    enabled: true
+    priority: CRITICAL
+  player_win:
+    enabled: true
+    priority: CRITICAL
