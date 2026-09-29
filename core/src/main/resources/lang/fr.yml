@@ -455,14 +455,14 @@ gui:
 # ============================================================================
 hotbar:
   teleport:
-    name: '&bTéléportation &7(clic droit)'
-    lore: [ '&7Liste des joueurs en vie', '&7pour s''y téléporter.' ]
+    name: '&bTéléportation'
+    lore: [ '&7Clic droit : liste des joueurs en vie', '&7Clic gauche : joueur suivant' ]
   players:
     name: '&eJoueurs &7(clic droit)'
     lore: [ '&7Vie, équipe, dimension...', '&7et accès aux fiches.' ]
   follow:
     name: '&aSuivre un joueur'
-    lore: [ '&7Clic droit : choisir / suivant', '&7Clic gauche : précédent', '&7Sneak + clic : arrêter' ]
+    lore: [ '&7Clic droit : choisir / suivant', '&7Clic gauche : le plus proche / précédent', '&7Sneak + clic : arrêter' ]
   events:
     name: '&6Évènements'
     lore: [ '&7Historique de la partie' ]

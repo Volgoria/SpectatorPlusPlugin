@@ -27,6 +27,8 @@ public final class SpectatorSession {
 
     SpectatorState state = SpectatorState.FREE;
     UUID target;
+    /** Dernier joueur atteint par le clic gauche de la boussole (joueur suivant). */
+    UUID lastTeleport;
     boolean frozen;
     boolean povExitRequested;
     boolean inspecting;

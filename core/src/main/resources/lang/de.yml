@@ -454,14 +454,14 @@ gui:
 # ============================================================================
 hotbar:
   teleport:
-    name: '&bTeleportation &7(Rechtsklick)'
-    lore: [ '&7Liste der lebenden Spieler', '&7zum Teleportieren.' ]
+    name: '&bTeleportation'
+    lore: [ '&7Rechtsklick: lebende Spieler', '&7Linksklick: nächster Spieler' ]
   players:
     name: '&eSpieler &7(Rechtsklick)'
     lore: [ '&7Leben, Team, Dimension...', '&7und Spielerprofile.' ]
   follow:
     name: '&aEinem Spieler folgen'
-    lore: [ '&7Rechtsklick: wählen / nächster', '&7Linksklick: vorheriger', '&7Schleichen + Klick: beenden' ]
+    lore: [ '&7Rechtsklick: wählen / nächster', '&7Linksklick: nächstgelegener / vorheriger', '&7Schleichen + Klick: beenden' ]
   events:
     name: '&6Ereignisse'
     lore: [ '&7Spielverlauf' ]

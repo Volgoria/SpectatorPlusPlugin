@@ -518,6 +518,50 @@ public final class SpectatorManager {
         else follow(s, t);
     }
 
+    /** Téléporte au joueur en vie qui suit (par ordre alphabétique) celui de la dernière téléportation. */
+    public void teleportNext(SpectatorSession s) {
+        PlatformPlayer p = s.getPlayer();
+        if (p == null) return;
+        List<PlatformPlayer> list = targets();
+        if (list.isEmpty()) {
+            plugin.messages().send(p, "errors.no-players");
+            return;
+        }
+        int idx = -1;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getUniqueId().equals(s.lastTeleport)) idx = i;
+        }
+        PlatformPlayer next = list.get((idx + 1) % list.size());
+        if (teleport(s, next)) s.lastTeleport = next.getUniqueId();
+    }
+
+    /** Suit le joueur en vie le plus proche (dans le même monde de préférence). */
+    public void followNearest(SpectatorSession s) {
+        PlatformPlayer p = s.getPlayer();
+        if (p == null) return;
+        PlatformPlayer nearest = nearest(p.getLocation(), targets());
+        if (nearest == null) {
+            plugin.messages().send(p, "errors.no-players");
+            return;
+        }
+        follow(s, nearest);
+    }
+
+    /** Joueur le plus proche d'une position ; à défaut, le premier d'un autre monde. */
+    static PlatformPlayer nearest(Position from, List<PlatformPlayer> players) {
+        PlatformPlayer best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (PlatformPlayer t : players) {
+            Position l = t.getLocation();
+            double d = from.sameWorld(l) ? from.distanceSquared(l) : Double.MAX_VALUE / 2;
+            if (best == null || d < bestDistance) {
+                best = t;
+                bestDistance = d;
+            }
+        }
+        return best;
+    }
+
     /** Position derrière la cible, sans entrer dans un bloc, orientée vers elle. */
     public Position behind(PlatformPlayer target, int distance) {
         Position base = target.getLocation();

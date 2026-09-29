@@ -58,7 +58,9 @@ public final class HotbarManager {
         if (plugin.filters().get(p).sounds) p.playSound(Sounds.CLICK, 0.4f, 1.6f);
         switch (action) {
             case "teleport":
-                new PlayerListMenu(plugin, p, PlayerListMenu.Mode.TELEPORT).open();
+                // clic gauche : joueur en vie suivant, sans passer par le menu
+                if (leftClick) plugin.spectators().teleportNext(s);
+                else new PlayerListMenu(plugin, p, PlayerListMenu.Mode.TELEPORT).open();
                 break;
             case "players":
                 new PlayerListMenu(plugin, p, PlayerListMenu.Mode.PLAYERS).open();
@@ -67,6 +69,8 @@ public final class HotbarManager {
                 if (s.getMovementState() == SpectatorState.FOLLOWING || s.getMovementState() == SpectatorState.POV) {
                     if (sneaking) plugin.spectators().stopFollowing(s, true);
                     else plugin.spectators().cycleAndFollow(s, leftClick ? -1 : 1);
+                } else if (leftClick) {
+                    plugin.spectators().followNearest(s);
                 } else {
                     new PlayerListMenu(plugin, p, PlayerListMenu.Mode.FOLLOW).open();
                 }
