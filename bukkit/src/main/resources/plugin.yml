@@ -42,8 +42,8 @@ permissions:
     description: Consulter l'ender chest des joueurs
     default: op
   spectatorplus.events.receive:
-    description: Recevoir les évènements de partie sans être spectateur (staff, casters)
-    default: op
+    description: Recevoir les évènements de partie sans être spectateur (staff, casters) si events.staff-receive est activé
+    default: false
   spectatorplus.see-spectators:
     description: Voir les spectateurs sans être spectateur
     default: false
@@ -75,7 +75,6 @@ permissions:
       spectatorplus.leave.others: true
       spectatorplus.list: true
       spectatorplus.inspect.enderchest: true
-      spectatorplus.events.receive: true
       spectatorplus.chat.see: true
       spectatorplus.bypass.commands: true
       spectatorplus.freeze: true

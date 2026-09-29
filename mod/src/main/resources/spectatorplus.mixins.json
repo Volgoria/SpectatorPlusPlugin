@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.spectatorplus.mod.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ChunkMapAccessor",
+    "TrackedEntityMixin",
+    "ServerPlayerMixin",
+    "ItemEntityMixin",
+    "ExperienceOrbMixin",
+    "LivingEntityMixin",
+    "MobMixin",
+    "PacketListenerMixin",
+    "PlayerMixin",
+    "ChangeDimensionTriggerMixin",
+    "ConsumeItemTriggerMixin",
+    "UsedTotemTriggerMixin",
+    "EnchantedItemTriggerMixin",
+    "SummonedEntityTriggerMixin",
+    "ServerPlayerGameModeMixin",
+    "BlockItemMixin",
+    "ResultSlotMixin",
+    "FurnaceResultSlotMixin",
+    "AnvilMenuMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

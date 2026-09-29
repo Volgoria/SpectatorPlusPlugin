@@ -1,11 +1,11 @@
 package fr.spectatorplus.api.event;
 
+import fr.spectatorplus.core.event.GameEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,32 +23,20 @@ import java.util.UUID;
  */
 public final class SpectatorGameEvent {
 
-    private final SpectatorEventType type;
-    private final List<UUID> players;
-    private final Map<UUID, String> playerNames;
-    private final Map<String, String> data;
-    private final Location location;
-    private final long timestamp;
-    private final Double damage;
-    private final String damageType;
-    private final boolean pvp;
-    private final boolean critical;
-    private Importance importance;
-    private String message;
+    private final GameEvent event;
 
-    private SpectatorGameEvent(Builder b) {
-        this.type = b.type;
-        this.players = Collections.unmodifiableList(new ArrayList<>(b.players));
-        this.playerNames = Collections.unmodifiableMap(new LinkedHashMap<>(b.names));
-        this.data = new LinkedHashMap<>(b.data);
-        this.location = b.location;
-        this.timestamp = b.timestamp;
-        this.damage = b.damage;
-        this.damageType = b.damageType;
-        this.pvp = b.pvp;
-        this.critical = b.critical;
-        this.importance = b.importance;
-        this.message = b.message;
+    private SpectatorGameEvent(GameEvent event) {
+        this.event = event;
+    }
+
+    /** Usage interne : vue API d'un évènement du code commun. */
+    public static SpectatorGameEvent wrap(GameEvent event) {
+        return event == null ? null : new SpectatorGameEvent(event);
+    }
+
+    /** Usage interne : évènement du code commun. */
+    public GameEvent unwrap() {
+        return event;
     }
 
     public static Builder builder(SpectatorEventType type) {
@@ -56,171 +44,156 @@ public final class SpectatorGameEvent {
     }
 
     public SpectatorEventType getType() {
-        return type;
+        return event.getType();
     }
 
     public String getTypeId() {
-        return type.getId();
+        return event.getTypeId();
     }
 
     public String getCategory() {
-        return type.getCategory();
+        return event.getCategory();
     }
 
     /** Joueurs concernés, le premier étant le joueur principal. */
     public List<UUID> getPlayers() {
-        return players;
+        return event.getPlayers();
     }
 
     public UUID getPrimaryPlayer() {
-        return players.isEmpty() ? null : players.get(0);
+        return event.getPrimaryPlayer();
     }
 
     public String getPlayerName(UUID id) {
-        return playerNames.get(id);
+        return event.getPlayerName(id);
     }
 
     /** Données personnalisées, utilisables comme placeholders : {clé}. */
     public Map<String, String> getData() {
-        return data;
+        return event.getData();
     }
 
     public String get(String key) {
-        return data.get(key);
+        return event.get(key);
     }
 
+    /** Lieu de l'évènement, ou null (ou si son monde n'est pas chargé). */
     public Location getLocation() {
-        return location == null ? null : location.clone();
+        fr.spectatorplus.core.platform.Position p = event.getLocation();
+        if (p == null || p.getWorld() == null) return null;
+        World w = Bukkit.getWorld(p.getWorld());
+        return w == null ? null : new Location(w, p.getX(), p.getY(), p.getZ(), p.getYaw(), p.getPitch());
     }
 
     /** Date de déclenchement (ms epoch). */
     public long getTimestamp() {
-        return timestamp;
+        return event.getTimestamp();
     }
 
     public boolean hasDamage() {
-        return damage != null;
+        return event.hasDamage();
     }
 
     public double getDamage() {
-        return damage == null ? 0 : damage;
+        return event.getDamage();
     }
 
     public String getDamageType() {
-        return damageType;
+        return event.getDamageType();
     }
 
     public boolean isPvp() {
-        return pvp;
+        return event.isPvp();
     }
 
     public boolean isCritical() {
-        return critical;
+        return event.isCritical();
     }
 
     /** Importance explicite, ou null si elle doit être déterminée par la configuration. */
     public Importance getImportance() {
-        return importance;
+        return event.getImportance();
     }
 
     public void setImportance(Importance importance) {
-        this.importance = importance;
+        event.setImportance(importance);
     }
 
     /** Message spécifique à cette occurrence (remplace celui de la configuration), ou null. */
     public String getMessage() {
-        return message;
+        return event.getMessage();
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        event.setMessage(message);
     }
 
     public static final class Builder {
-        private final SpectatorEventType type;
-        private final List<UUID> players = new ArrayList<>();
-        private final Map<UUID, String> names = new LinkedHashMap<>();
-        private final Map<String, String> data = new LinkedHashMap<>();
-        private Location location;
-        private long timestamp = System.currentTimeMillis();
-        private Double damage;
-        private String damageType;
-        private boolean pvp;
-        private boolean critical;
-        private Importance importance;
-        private String message;
+        private final GameEvent.Builder builder;
+        private boolean hasLocation;
+        private boolean hasPlayer;
 
         private Builder(SpectatorEventType type) {
-            if (type == null) throw new IllegalArgumentException("type cannot be null");
-            this.type = type;
+            this.builder = GameEvent.builder(type);
         }
 
         /** Ajoute un joueur concerné. Le premier ajouté est le joueur principal ({player}). */
         public Builder player(Player player) {
             if (player == null) return this;
-            if (!players.contains(player.getUniqueId())) {
-                players.add(player.getUniqueId());
-                names.put(player.getUniqueId(), player.getName());
-            }
-            if (players.size() == 1) {
-                data.put("player", player.getName());
-                if (location == null) location = player.getLocation();
-            }
+            boolean first = !hasPlayer;
+            builder.player(player.getUniqueId(), player.getName());
+            hasPlayer = true;
+            // le lieu par défaut est celui du joueur principal
+            if (first && !hasLocation) location(player.getLocation());
             return this;
         }
 
         public Builder player(UUID id, String name) {
-            if (id == null) return this;
-            if (!players.contains(id)) {
-                players.add(id);
-                names.put(id, name);
-            }
-            if (players.size() == 1) data.put("player", name);
+            if (id != null) hasPlayer = true;
+            builder.player(id, name);
             return this;
         }
 
         public Builder data(String key, Object value) {
-            if (key != null && value != null) data.put(key, String.valueOf(value));
+            builder.data(key, value);
             return this;
         }
 
         public Builder data(Map<String, ?> values) {
-            if (values != null) {
-                for (Map.Entry<String, ?> e : values.entrySet()) data(e.getKey(), e.getValue());
-            }
+            builder.data(values);
             return this;
         }
 
         public Builder location(Location location) {
-            this.location = location == null ? null : location.clone();
+            hasLocation = location != null;
+            builder.location(location == null ? null : new fr.spectatorplus.core.platform.Position(
+                    location.getWorld() == null ? null : location.getWorld().getName(),
+                    location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch()));
             return this;
         }
 
         public Builder timestamp(long timestamp) {
-            this.timestamp = timestamp;
+            builder.timestamp(timestamp);
             return this;
         }
 
         public Builder damage(double damage, String damageType, boolean pvp, boolean critical) {
-            this.damage = damage;
-            this.damageType = damageType;
-            this.pvp = pvp;
-            this.critical = critical;
+            builder.damage(damage, damageType, pvp, critical);
             return this;
         }
 
         public Builder importance(Importance importance) {
-            this.importance = importance;
+            builder.importance(importance);
             return this;
         }
 
         public Builder message(String message) {
-            this.message = message;
+            builder.message(message);
             return this;
         }
 
         public SpectatorGameEvent build() {
-            return new SpectatorGameEvent(this);
+            return new SpectatorGameEvent(builder.build());
         }
     }
 }

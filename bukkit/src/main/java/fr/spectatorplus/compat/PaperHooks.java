@@ -27,7 +27,7 @@ public final class PaperHooks {
     }
 
     private boolean spec(Object o) {
-        return o instanceof Player && plugin.spectators().isSpectator((Player) o);
+        return o instanceof Player && plugin.spectators().isSpectator(((Player) o).getUniqueId());
     }
 
     private void cancelIf(String className, String label, final String getter) {
@@ -41,7 +41,7 @@ public final class PaperHooks {
     }
 
     public void register() {
-        if (!Platform.isPaper()) return;
+        if (!ServerType.isPaper()) return;
 
         // Pas de caméra vanilla (clic gauche sur une entité) pendant la traversée d'un bloc : seul le POV du plugin l'utilise
         boolean ok = DynamicEvents.register(plugin, "com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent",
@@ -50,7 +50,7 @@ public final class PaperHooks {
                     public void handle(Event event) {
                         Object p = Reflect.invoke(event, "getPlayer");
                         if (!(p instanceof Player)) return;
-                        SpectatorSession s = plugin.spectators().getSpectator((Player) p);
+                        SpectatorSession s = plugin.spectators().getSpectator(((Player) p).getUniqueId());
                         if (s != null && s.getMovementState() != SpectatorState.POV) ((Cancellable) event).setCancelled(true);
                     }
                 });

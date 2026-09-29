@@ -1,0 +1,19 @@
+modLoader = "javafml"
+loaderVersion = "${loader}"
+license = "All-Rights-Reserved"
+
+[[mods]]
+modId = "${id}"
+displayName = "${name}"
+version = "${version}"
+authors = "Emeric"
+description = "Advanced spectator system - events feed, filters, follow, POV, inventory inspection. Server-side only."
+# Mod côté serveur : les clients vanilla (ou sans le mod) peuvent se connecter
+displayTest = "IGNORE_ALL_VERSION"
+
+[[dependencies.${id}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${minecraft}"
+ordering = "NONE"
+side = "BOTH"

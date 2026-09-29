@@ -48,3 +48,18 @@ tasks.jar {
     dependsOn(":core:jar")
     from(project(":core").sourceSets.main.get().output)
 }
+
+// Tests : vérifient que le code commun se comporte comme l'API Bukkit
+dependencies {
+    testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT") {
+        exclude(group = "net.md-5", module = "bungeecord-chat")
+    }
+    testImplementation(files("libs/bungeecord-chat-1.8-SNAPSHOT.jar"))
+    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

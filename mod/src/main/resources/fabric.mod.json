@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Advanced spectator system - events feed, filters, follow, POV, inventory inspection. Server-side only.",
+  "authors": ["Emeric"],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["fr.spectatorplus.mod.fabric.SpectatorPlusFabric"]
+  },
+  "mixins": ["spectatorplus.mixins.json"],
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "minecraft": "${minecraft}",
+    "fabric-api": "*"
+  }
+}

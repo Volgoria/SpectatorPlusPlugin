@@ -1,11 +1,9 @@
 package fr.spectatorplus.spectator;
 
 import fr.spectatorplus.SpectatorPlus;
-import fr.spectatorplus.api.EnterReason;
-import fr.spectatorplus.api.SpectatorMode;
-import fr.spectatorplus.api.SpectatorState;
 import fr.spectatorplus.compat.Compat;
 import fr.spectatorplus.compat.DynamicEvents;
+import fr.spectatorplus.compat.Positions;
 import fr.spectatorplus.compat.Reflect;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
@@ -56,11 +55,8 @@ import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Protections du mode spectateur + interactions (barre d'outils, clic sur un joueur),
@@ -69,14 +65,13 @@ import java.util.UUID;
 public final class SpectatorListener implements Listener {
 
     private final SpectatorPlus plugin;
-    private final Map<UUID, Location> pendingDeaths = new HashMap<>();
 
     public SpectatorListener(SpectatorPlus plugin) {
         this.plugin = plugin;
     }
 
     private boolean spec(Entity e) {
-        return e instanceof Player && plugin.spectators().isSpectator((Player) e);
+        return e instanceof Player && plugin.spectators().isSpectator(((Player) e).getUniqueId());
     }
 
     /** Évènements absents de l'API 1.8 : enregistrés dynamiquement. */
@@ -125,7 +120,7 @@ public final class SpectatorListener implements Listener {
                 Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
                     @Override
                     public void run() {
-                        if (((Player) p).isOnline()) plugin.spectators().refreshHotbar((Player) p);
+                        if (((Player) p).isOnline()) plugin.spectators().refreshHotbar(plugin.wrap((Player) p));
                     }
                 }, 2L);
             }
@@ -172,41 +167,20 @@ public final class SpectatorListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        SpectatorSession s = plugin.spectators().getSpectator(p);
-        if (s == null) return;
+        if (!spec(p)) return;
         e.setCancelled(true);
-        if (!Compat.isMainHand(e)) return;
-        switch (e.getAction()) {
-            case PHYSICAL:
-                return;
-            default:
-                break;
-        }
-        String action = s.getHotbarAction(p.getInventory().getHeldItemSlot());
-        if (action == null) return;
-        boolean left = e.getAction().name().startsWith("LEFT");
-        plugin.hotbar().use(p, s, action, left, p.isSneaking());
+        if (!Compat.isMainHand(e) || e.getAction() == Action.PHYSICAL) return;
+        plugin.core().interactions().useHotbar(plugin.wrap(p), e.getAction().name().startsWith("LEFT"));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteractEntity(PlayerInteractEntityEvent e) {
         Player p = e.getPlayer();
-        SpectatorSession s = plugin.spectators().getSpectator(p);
-        if (s == null) return;
+        if (!spec(p)) return;
         e.setCancelled(true);
         if (e instanceof PlayerInteractAtEntityEvent || !Compat.isMainHand(e)) return;
         if (!(e.getRightClicked() instanceof Player)) return;
-        Player target = (Player) e.getRightClicked();
-        if (plugin.spectators().isSpectator(target)) return;
-        String action = s.getHotbarAction(p.getInventory().getHeldItemSlot());
-        if ("follow".equals(action)) {
-            plugin.spectators().follow(s, target);
-            return;
-        }
-        String click = plugin.getConfig().getString("spectator.right-click-player", "INVENTORY").toUpperCase(Locale.ROOT);
-        if (click.equals("SHEET")) s.openInspection(target);
-        else if (click.equals("FOLLOW")) plugin.spectators().follow(s, target);
-        else if (!click.equals("NONE")) s.openInventory(target, false);
+        plugin.core().interactions().rightClickPlayer(plugin.wrap(p), plugin.wrap((Player) e.getRightClicked()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -283,7 +257,7 @@ public final class SpectatorListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInventoryOpen(org.bukkit.event.inventory.InventoryOpenEvent e) {
         if (!spec(e.getPlayer()) || e.getPlayer().hasPermission("spectatorplus.bypass.inventories")) return;
-        if (!plugin.getConfig().getBoolean("spectator.block-world-inventories", true)) return;
+        if (!plugin.config().getBoolean("spectator.block-world-inventories", true)) return;
         org.bukkit.inventory.InventoryHolder holder = e.getInventory().getHolder();
         if (holder instanceof org.bukkit.block.BlockState || holder instanceof org.bukkit.block.DoubleChest
                 || (holder instanceof Entity && holder != e.getPlayer())) {
@@ -307,11 +281,7 @@ public final class SpectatorListener implements Listener {
         e.setCancelled(true);
         Player p = (Player) e.getEntity();
         p.setFireTicks(0);
-        if (e.getCause() == EntityDamageEvent.DamageCause.VOID) {
-            Location l = p.getLocation();
-            l.setY(l.getWorld().getHighestBlockYAt(l.getBlockX(), l.getBlockZ()) + 5);
-            p.teleport(l);
-        }
+        if (e.getCause() == EntityDamageEvent.DamageCause.VOID) plugin.core().interactions().voidDamage(plugin.wrap(p));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -321,9 +291,8 @@ public final class SpectatorListener implements Listener {
         // un spectateur ne peut infliger aucun dégât
         if (spec(damager)) {
             e.setCancelled(true);
-            if (victim instanceof Player && !spec(victim) && plugin.getConfig().getBoolean("spectator.left-click-opens-sheet", true)) {
-                SpectatorSession s = plugin.spectators().getSpectator((Player) damager);
-                if (s != null && s.getMovementState() != SpectatorState.POV) s.openInspection((Player) victim);
+            if (victim instanceof Player) {
+                plugin.core().interactions().leftClickPlayer(plugin.wrap((Player) damager), plugin.wrap((Player) victim));
             }
             return;
         }
@@ -372,8 +341,7 @@ public final class SpectatorListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent e) {
-        SpectatorSession s = plugin.spectators().getSpectator(e.getPlayer());
-        if (s == null || !s.isFrozen()) return;
+        if (!plugin.core().interactions().isFrozen(plugin.wrap(e.getPlayer()))) return;
         Location from = e.getFrom(), to = e.getTo();
         if (to == null) return;
         if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
@@ -386,32 +354,17 @@ public final class SpectatorListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSneak(PlayerToggleSneakEvent e) {
-        SpectatorSession s = plugin.spectators().getSpectator(e.getPlayer());
-        if (s != null && e.isSneaking() && s.getMovementState() == SpectatorState.POV) {
-            plugin.spectators().requestPovExit(s);
-        }
+        if (e.isSneaking()) plugin.core().interactions().sneak(plugin.wrap(e.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPortal(PlayerPortalEvent e) {
-        if (spec(e.getPlayer()) && !plugin.getConfig().getBoolean("spectator.allow-portals", false)) e.setCancelled(true);
+        if (spec(e.getPlayer()) && !plugin.config().getBoolean("spectator.allow-portals", false)) e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldChange(final PlayerChangedWorldEvent e) {
-        final Player p = e.getPlayer();
-        if (!spec(p)) return;
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                SpectatorSession s = plugin.spectators().getSpectator(p);
-                if (p.isOnline() && s != null && s.getMovementState() != SpectatorState.POV) {
-                    p.setAllowFlight(true);
-                    p.setFlying(true);
-                    plugin.spectators().applyFlySpeed(p);
-                }
-            }
-        }, 2L);
+        plugin.core().interactions().worldChanged(plugin.wrap(e.getPlayer()));
     }
 
     // ------------------------------------------------------------------ mort / réapparition (modes auto)
@@ -419,18 +372,14 @@ public final class SpectatorListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDeath(PlayerDeathEvent e) {
         final Player p = e.getEntity();
-        if (spec(p)) {
+        boolean wasSpectator = spec(p);
+        if (wasSpectator) {
             e.getDrops().clear();
             e.setDroppedExp(0);
             e.setDeathMessage(null);
             e.setKeepInventory(true);
-            pendingDeaths.put(p.getUniqueId(), p.getLocation());
-            scheduleRespawn(p);
-            return;
         }
-        if (plugin.getMode() == SpectatorMode.MANUAL || !plugin.getConfig().getBoolean("auto.on-death", true)) return;
-        pendingDeaths.put(p.getUniqueId(), p.getLocation());
-        if (plugin.getConfig().getBoolean("auto.instant-respawn", true)) scheduleRespawn(p);
+        if (plugin.core().interactions().death(plugin.wrap(p))) scheduleRespawn(p);
     }
 
     private void scheduleRespawn(final Player p) {
@@ -444,32 +393,8 @@ public final class SpectatorListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent e) {
-        final Player p = e.getPlayer();
-        final Location death = pendingDeaths.remove(p.getUniqueId());
-        if (death == null) return;
-        final boolean wasSpectator = spec(p);
-        if (wasSpectator && death.getWorld() != null) {
-            // un spectateur « mort » (commande /kill...) réapparaît là où il était
-            Location l = death.clone();
-            if (l.getY() < Compat.minHeight(l.getWorld()) + 1) {
-                l.setY(l.getWorld().getHighestBlockYAt(l.getBlockX(), l.getBlockZ()) + 3);
-            }
-            e.setRespawnLocation(l);
-        }
-        final Location target = plugin.getConfig().getBoolean("auto.teleport-to-death-location", true) ? death : null;
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                if (!p.isOnline()) return;
-                SpectatorSession s = plugin.spectators().getSpectator(p);
-                if (s != null) {
-                    plugin.spectators().apply(p);
-                    plugin.hotbar().give(p, s);
-                    return;
-                }
-                plugin.spectators().enter(p, EnterReason.DEATH, target, plugin.getMode() == SpectatorMode.AUTO);
-            }
-        }, 1L);
+        Location override = Positions.toLocation(plugin.core().interactions().respawn(plugin.wrap(e.getPlayer())));
+        if (override != null) e.setRespawnLocation(override);
     }
 
     // ------------------------------------------------------------------ connexion
@@ -478,23 +403,25 @@ public final class SpectatorListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         plugin.filters().loadPlayer(p.getUniqueId());
-        plugin.spectators().handleJoin(p);
+        plugin.spectators().handleJoin(plugin.wrap(p));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        plugin.menus().forget(p);
-        plugin.spectators().handleQuit(p);
+        plugin.menus().forget(plugin.wrap(p));
+        plugin.spectators().handleQuit(plugin.wrap(p));
         plugin.filters().unload(p.getUniqueId());
         plugin.events().forget(p.getUniqueId());
+        plugin.core().interactions().quit(p.getUniqueId());
+        plugin.platform().forget(p.getUniqueId());
     }
 
     // ------------------------------------------------------------------ chat & commandes
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
-        if (!plugin.getConfig().getBoolean("spectator.chat.separate", true)) return;
+        if (!plugin.config().getBoolean("spectator.chat.separate", true)) return;
         Player p = e.getPlayer();
         if (!plugin.spectators().isSpectator(p.getUniqueId())) return;
         Iterator<Player> it = e.getRecipients().iterator();
@@ -502,7 +429,7 @@ public final class SpectatorListener implements Listener {
             Player r = it.next();
             if (!plugin.spectators().isSpectator(r.getUniqueId()) && !r.hasPermission("spectatorplus.chat.see")) it.remove();
         }
-        e.setFormat(fr.spectatorplus.util.Text.color(plugin.getConfig().getString("spectator.chat.prefix", "&7[Spec] ")) + e.getFormat());
+        e.setFormat(fr.spectatorplus.util.Text.color(plugin.config().getString("spectator.chat.prefix", "&7[Spec] ")) + e.getFormat());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -511,10 +438,10 @@ public final class SpectatorListener implements Listener {
         if (!spec(p) || p.hasPermission("spectatorplus.bypass.commands")) return;
         String label = e.getMessage().substring(1).split(" ")[0].toLowerCase(Locale.ROOT);
         if (label.contains(":")) label = label.substring(label.indexOf(':') + 1);
-        for (String blocked : plugin.getConfig().getStringList("spectator.blocked-commands")) {
+        for (String blocked : plugin.config().getStringList("spectator.blocked-commands")) {
             if (blocked.equalsIgnoreCase(label)) {
                 e.setCancelled(true);
-                plugin.messages().send(p, "errors.command-blocked");
+                plugin.messages().send(plugin.wrap(p), "errors.command-blocked");
                 return;
             }
         }

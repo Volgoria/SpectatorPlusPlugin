@@ -399,7 +399,7 @@ public final class Compat {
 
     /** Joueur fictif d'un mod (serveurs hybrides Forge / NeoForge / Fabric). */
     public static boolean isFake(Player p) {
-        return Platform.isFakePlayer(p);
+        return ServerType.isFakePlayer(p);
     }
 
     /** true si l'évènement (1.9+) concerne la main principale. */
