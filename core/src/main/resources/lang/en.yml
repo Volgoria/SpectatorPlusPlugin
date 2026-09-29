@@ -53,6 +53,7 @@ help:
   - '&b/{label} follow <player|stop> &7- Follow a player'
   - '&b/{label} pov <player|stop> &7- First-person view'
   - '&b/{label} next|prev &7- Next / previous player'
+  - '&b/{label} auto &7- Automatic fight follow'
   - '&b/{label} inspect|inv|ec <player> &7- Profile, inventory, ender chest'
   - '&b/{label} filters|events|info|settings &7- Menus'
   - '&b/{label} preset <name> &7- Change filter preset'
@@ -71,6 +72,9 @@ spectator:
   teleported: '&7Teleported to &b{target}&7.'
   follow-start: '&7You are following &b{target}&7. &8(sneak + click the eye to stop)'
   follow-stop: '&7You are no longer following anyone.'
+  auto-combat: '&c⚔ &7Fight: &b{target} &7vs &b{opponent}'
+  auto-combat-on: '&aAutomatic fight follow enabled.'
+  auto-combat-off: '&7Automatic fight follow disabled.'
   target-lost: '&7The followed player is no longer available.'
   pov-start: '&7You are seeing through &b{target}&7''s eyes. &8(sneak to exit)'
   pov-stop: '&7First-person view ended.'
@@ -444,6 +448,9 @@ gui:
     noclip:
       name: '&bNoclip'
       lore: [ '&7Fly through blocks.' ]
+    auto-combat:
+      name: '&cAuto fight follow'
+      lore: [ '&7The camera moves by itself', '&7to the ongoing fight.' ]
     language:
       name: '&fLanguage'
       lore: [ '&7Language of messages and menus.' ]

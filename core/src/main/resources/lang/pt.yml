@@ -54,6 +54,7 @@ help:
   - '&b/{label} follow <jogador|stop> &7- Seguir um jogador'
   - '&b/{label} pov <jogador|stop> &7- Visão em primeira pessoa'
   - '&b/{label} next|prev &7- Próximo / anterior jogador'
+  - '&b/{label} auto &7- Seguimento automático de combates'
   - '&b/{label} inspect|inv|ec <jogador> &7- Ficha, inventário, baú do ender'
   - '&b/{label} filters|events|info|settings &7- Menus'
   - '&b/{label} preset <nome> &7- Trocar o preset de filtros'
@@ -72,6 +73,9 @@ spectator:
   teleported: '&7Teleportado para &b{target}&7.'
   follow-start: '&7Você está seguindo &b{target}&7. &8(agachar + clique no olho para parar)'
   follow-stop: '&7Você não está mais seguindo ninguém.'
+  auto-combat: '&c⚔ &7Combate: &b{target} &7contra &b{opponent}'
+  auto-combat-on: '&aSeguimento automático de combates ativado.'
+  auto-combat-off: '&7Seguimento automático de combates desativado.'
   target-lost: '&7O jogador seguido não está mais disponível.'
   pov-start: '&7Você vê pelos olhos de &b{target}&7. &8(agache para sair)'
   pov-stop: '&7Visão em primeira pessoa encerrada.'
@@ -445,6 +449,9 @@ gui:
     noclip:
       name: '&bAtravessar paredes'
       lore: [ '&7Atravessar os blocos voando.' ]
+    auto-combat:
+      name: '&cSeguir combates'
+      lore: [ '&7A câmera vai sozinha', '&7para o combate em curso.' ]
     language:
       name: '&fIdioma'
       lore: [ '&7Idioma das mensagens e menus.' ]

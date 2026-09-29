@@ -40,6 +40,7 @@ public final class SpectatorManager {
     // concurrente : lue depuis le thread asynchrone du chat
     private final Map<UUID, SpectatorSession> sessions = new ConcurrentHashMap<>();
     private final Map<UUID, Set<UUID>> hiddenByUs = new HashMap<>();
+    private final CombatDirector director = new CombatDirector();
     private final File folder;
 
     public SpectatorManager(SpectatorCore plugin) {
@@ -61,6 +62,7 @@ public final class SpectatorManager {
             public void run() {
                 povTick();
                 hudTick();
+                autoCombatTick();
             }
         }, 10L, 10L);
     }
@@ -453,6 +455,10 @@ public final class SpectatorManager {
     }
 
     public void follow(SpectatorSession s, PlatformPlayer target) {
+        follow(s, target, true);
+    }
+
+    private void follow(SpectatorSession s, PlatformPlayer target, boolean announce) {
         PlatformPlayer p = s.getPlayer();
         if (p == null || target == null) return;
         if (same(target, p) || isSpectator(target)) {
@@ -469,6 +475,7 @@ public final class SpectatorManager {
         if (s.state == SpectatorState.POV) exitPovMode(s, p);
         s.state = SpectatorState.FOLLOWING;
         s.target = target.getUniqueId();
+        s.targetSince = System.currentTimeMillis();
         s.lastTargetPos = null;
         // une seule téléportation au départ (si loin), ensuite la caméra glisse (voir followTick)
         Position pl = p.getLocation(), tl = target.getLocation();
@@ -476,7 +483,7 @@ public final class SpectatorManager {
             p.teleport(behind(target, plugin.filters().get(p).followDistance));
         }
         p.setFlying(true);
-        plugin.messages().send(p, "spectator.follow-start", "target", target.getName());
+        if (announce) plugin.messages().send(p, "spectator.follow-start", "target", target.getName());
     }
 
     public void stopFollowing(SpectatorSession s, boolean message) {
@@ -782,7 +789,11 @@ public final class SpectatorManager {
 
     // ------------------------------------------------------------------ POV
 
-    public void startPov(final SpectatorSession s, final PlatformPlayer target) {
+    public void startPov(SpectatorSession s, PlatformPlayer target) {
+        startPov(s, target, true);
+    }
+
+    private void startPov(final SpectatorSession s, final PlatformPlayer target, boolean announce) {
         final PlatformPlayer p = s.getPlayer();
         if (p == null || target == null) return;
         if (!plugin.config().getBoolean("pov.enabled", true) || !p.hasPermission("spectatorplus.pov")) {
@@ -802,6 +813,7 @@ public final class SpectatorManager {
         plugin.menus().close(p);
         s.state = SpectatorState.POV;
         s.target = target.getUniqueId();
+        s.targetSince = System.currentTimeMillis();
         s.povExitRequested = false;
         p.teleport(target.getLocation());
         p.setGameMode(GameMode.SPECTATOR);
@@ -811,7 +823,7 @@ public final class SpectatorManager {
                 if (s.state == SpectatorState.POV && p.isOnline() && target.isOnline()) p.setSpectatorTarget(target);
             }
         }, 3L);
-        plugin.messages().send(p, "spectator.pov-start", "target", target.getName());
+        if (announce) plugin.messages().send(p, "spectator.pov-start", "target", target.getName());
     }
 
     public void stopPov(SpectatorSession s) {
@@ -871,6 +883,59 @@ public final class SpectatorManager {
                 p.setSpectatorTarget(t);
             }
         }
+    }
+
+    // ------------------------------------------------------------------ suivi automatique des combats
+
+    public void combatHit(UUID attacker, UUID victim) {
+        director.hit(attacker, victim, System.currentTimeMillis());
+    }
+
+    /** Mort d'un joueur : ses combats sont terminés. */
+    public void combatOver(UUID player) {
+        director.forget(player);
+    }
+
+    public void resetCombats() {
+        director.reset();
+    }
+
+    /** Spectateurs en suivi automatique : caméra sur le combat en cours (config.yml → follow.auto-combat). */
+    private void autoCombatTick() {
+        long now = System.currentTimeMillis();
+        director.configure((long) (plugin.config().getDouble("follow.auto-combat.active-seconds", 6) * 1000),
+                (long) (plugin.config().getDouble("follow.auto-combat.min-watch-seconds", 5) * 1000));
+        director.purge(now);
+        CombatDirector.Eligibility eligible = null;
+        for (SpectatorSession s : sessions.values()) {
+            if (s.frozen || s.inspecting) continue;
+            PlatformPlayer p = s.getPlayer();
+            if (p == null || !plugin.filters().get(p).autoCombat) continue;
+            UUID current = s.state == SpectatorState.FOLLOWING || s.state == SpectatorState.POV ? s.target : null;
+            if (eligible == null) eligible = eligibility();
+            UUID next = director.choose(current, s.targetSince, now, eligible);
+            PlatformPlayer t = next == null ? null : plugin.platform().getPlayer(next);
+            if (t == null) continue;
+            if (s.state == SpectatorState.POV) startPov(s, t, false);
+            else follow(s, t, false);
+            UUID opponent = director.opponent(next, now);
+            PlatformPlayer o = opponent == null ? null : plugin.platform().getPlayer(opponent);
+            plugin.messages().send(p, "spectator.auto-combat", "target", t.getName(), "opponent", o == null ? "?" : o.getName());
+        }
+    }
+
+    /** Cibles possibles du suivi automatique : joueurs en vie connectés. */
+    private CombatDirector.Eligibility eligibility() {
+        final Set<UUID> alive = new HashSet<>();
+        for (PlatformPlayer t : plugin.game().getAlivePlayers()) {
+            if (t.isOnline() && !isSpectator(t)) alive.add(t.getUniqueId());
+        }
+        return new CombatDirector.Eligibility() {
+            @Override
+            public boolean isEligible(UUID player) {
+                return alive.contains(player);
+            }
+        };
     }
 
     // ------------------------------------------------------------------ HUD

@@ -54,6 +54,7 @@ help:
   - '&b/{label} follow <joueur|stop> &7- Suivre un joueur'
   - '&b/{label} pov <joueur|stop> &7- Vue à la première personne'
   - '&b/{label} next|prev &7- Joueur suivant / précédent'
+  - '&b/{label} auto &7- Suivi automatique des combats'
   - '&b/{label} inspect|inv|ec <joueur> &7- Fiche, inventaire, ender chest'
   - '&b/{label} filters|events|info|settings &7- Menus'
   - '&b/{label} preset <nom> &7- Changer de preset de filtres'
@@ -72,6 +73,9 @@ spectator:
   teleported: '&7Téléporté vers &b{target}&7.'
   follow-start: '&7Vous suivez &b{target}&7. &8(sneak + clic sur l''œil pour arrêter)'
   follow-stop: '&7Vous ne suivez plus personne.'
+  auto-combat: '&c⚔ &7Combat : &b{target} &7contre &b{opponent}'
+  auto-combat-on: '&aSuivi automatique des combats activé.'
+  auto-combat-off: '&7Suivi automatique des combats désactivé.'
   target-lost: '&7Le joueur suivi n''est plus disponible.'
   pov-start: '&7Vous voyez à travers les yeux de &b{target}&7. &8(accroupissez-vous pour quitter)'
   pov-stop: '&7Vue à la première personne terminée.'
@@ -445,6 +449,9 @@ gui:
     noclip:
       name: '&bPasse-muraille'
       lore: [ '&7Traverser les blocs en volant.' ]
+    auto-combat:
+      name: '&cSuivi auto des combats'
+      lore: [ '&7La caméra passe d''elle-même', '&7au combat en cours.' ]
     language:
       name: '&fLangue'
       lore: [ '&7Langue des messages et des menus.' ]

@@ -94,6 +94,7 @@ public final class GameManager {
         eliminated.clear();
         plugin.stats().reset();
         plugin.combat().reset();
+        plugin.spectators().resetCombats();
         plugin.resetGameTracking();
         plugin.events().clearHistory();
         participants.clear();

@@ -27,6 +27,8 @@ public final class SpectatorSession {
 
     SpectatorState state = SpectatorState.FREE;
     UUID target;
+    /** Début du suivi de la cible actuelle (suivi automatique des combats). */
+    long targetSince;
     /** Dernier joueur atteint par le clic gauche de la boussole (joueur suivant). */
     UUID lastTeleport;
     boolean frozen;

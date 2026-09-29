@@ -160,6 +160,7 @@ public class FilterEngine {
         fresh.chatEvents = old.chatEvents;
         fresh.followDistance = old.followDistance;
         fresh.noclip = old.noclip;
+        fresh.autoCombat = old.autoCombat;
         fresh.language = old.language;
         return fresh;
     }

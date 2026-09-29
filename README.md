@@ -139,6 +139,11 @@ Si UHCCore est installé (`hooks.uhccore: true`, par défaut), c'est lui qui dé
 
 - Le suivi n'utilise plus de téléportations en boucle : une vélocité est appliquée chaque tick vers la
   position idéale (anticipation du déplacement de la cible). La caméra reste libre. Styles : `SMOOTH`, `BEHIND`, `LEASH`.
+- Passer d'un joueur à l'autre : boussole (clic gauche : joueur en vie suivant, clic droit : liste), œil
+  (clic droit : choisir puis suivant, clic gauche : le plus proche puis précédent, sneak + clic : arrêter).
+- Suivi automatique des combats (menu Paramètres ou `/spec auto`, `follow.auto-combat`) : la caméra, en suivi ou en
+  POV, passe d'elle-même au combat le plus récent ; elle reste sur un joueur tant qu'il se bat et au moins
+  `min-watch-seconds` sur chaque cible.
 - En mode Adventure, les collisions sont calculées par le client : impossible de traverser un bloc.
   Le passe-muraille bascule donc le spectateur en mode Spectator vanilla au contact d'un bloc,
   puis le remet en Adventure à l'air libre. Pendant la traversée, la barre d'inventaire n'est pas utilisable.

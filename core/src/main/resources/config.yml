@@ -91,6 +91,13 @@ follow:
   leash-distance: 12
   # Passer automatiquement au joueur suivant si la cible meurt / se déconnecte
   auto-next-on-target-lost: true
+  # Suivi automatique des combats, activé par chaque spectateur (menu Paramètres ou /spec auto) :
+  # la caméra (suivi ou POV) passe d'elle-même au combat en cours.
+  auto-combat:
+    # Un combat est « en cours » tant que le dernier coup date de moins de ... secondes
+    active-seconds: 6
+    # Temps minimal sur une cible avant de passer à un autre combat (évite les allers-retours)
+    min-watch-seconds: 5
 
 # Vue à la première personne (utilise le mode Spectator vanilla temporairement)
 pov:
@@ -268,6 +275,8 @@ filters:
       chat-events: true
       follow-distance: 4
       noclip: true
+      # Suivi automatique des combats (voir follow.auto-combat)
+      auto-combat: false
       # auto = langue du client, sinon code de langue (fr, en...)
       language: auto
 

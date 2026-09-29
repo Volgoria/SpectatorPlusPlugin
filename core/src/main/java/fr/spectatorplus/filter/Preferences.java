@@ -71,6 +71,8 @@ public final class Preferences {
     public boolean chatEvents = true;
     public int followDistance = 4;
     public boolean noclip = true;
+    /** Suivi automatique des combats. */
+    public boolean autoCombat;
     /** Code de langue (fr, en...) ou « auto » (langue du client / du serveur). */
     public String language = "auto";
 
@@ -129,6 +131,7 @@ public final class Preferences {
         y.set("settings.chat-events", chatEvents);
         y.set("settings.follow-distance", followDistance);
         y.set("settings.noclip", noclip);
+        y.set("settings.auto-combat", autoCombat);
         y.set("settings.language", language);
         return y;
     }
@@ -198,6 +201,7 @@ public final class Preferences {
         chatEvents = y.getBoolean("settings.chat-events", chatEvents);
         followDistance = y.getInt("settings.follow-distance", followDistance);
         noclip = y.getBoolean("settings.noclip", noclip);
+        autoCombat = y.getBoolean("settings.auto-combat", autoCombat);
         language = y.getString("settings.language", language);
     }
 

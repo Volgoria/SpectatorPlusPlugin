@@ -170,6 +170,13 @@ public final class SettingsMenu extends Menu {
                 }
             });
         }
+        toggleOption(25, "IRON_SWORD", "auto-combat", p.autoCombat, new Toggle() {
+            @Override
+            public boolean flip(Preferences pr) {
+                pr.autoCombat = !pr.autoCombat;
+                return pr.autoCombat;
+            }
+        });
         back(31, new MainMenu(plugin, viewer));
         fill();
     }

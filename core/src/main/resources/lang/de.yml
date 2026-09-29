@@ -53,6 +53,7 @@ help:
   - '&b/{label} follow <Spieler|stop> &7- Einem Spieler folgen'
   - '&b/{label} pov <Spieler|stop> &7- Ego-Perspektive'
   - '&b/{label} next|prev &7- Nächster / vorheriger Spieler'
+  - '&b/{label} auto &7- Kämpfe automatisch verfolgen'
   - '&b/{label} inspect|inv|ec <Spieler> &7- Profil, Inventar, Endertruhe'
   - '&b/{label} filters|events|info|settings &7- Menüs'
   - '&b/{label} preset <Name> &7- Filter-Preset wechseln'
@@ -71,6 +72,9 @@ spectator:
   teleported: '&7Zu &b{target} &7teleportiert.'
   follow-start: '&7Du folgst &b{target}&7. &8(Schleichen + Klick auf das Auge zum Beenden)'
   follow-stop: '&7Du folgst niemandem mehr.'
+  auto-combat: '&c⚔ &7Kampf: &b{target} &7gegen &b{opponent}'
+  auto-combat-on: '&aAutomatisches Verfolgen von Kämpfen aktiviert.'
+  auto-combat-off: '&7Automatisches Verfolgen von Kämpfen deaktiviert.'
   target-lost: '&7Der verfolgte Spieler ist nicht mehr verfügbar.'
   pov-start: '&7Du siehst durch die Augen von &b{target}&7. &8(schleichen zum Verlassen)'
   pov-stop: '&7Ego-Perspektive beendet.'
@@ -444,6 +448,9 @@ gui:
     noclip:
       name: '&bDurch Wände fliegen'
       lore: [ '&7Im Flug durch Blöcke gleiten.' ]
+    auto-combat:
+      name: '&cKämpfe automatisch folgen'
+      lore: [ '&7Die Kamera wechselt selbst', '&7zum laufenden Kampf.' ]
     language:
       name: '&fSprache'
       lore: [ '&7Sprache der Nachrichten und Menüs.' ]

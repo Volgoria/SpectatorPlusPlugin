@@ -12,6 +12,7 @@ import fr.spectatorplus.gui.menus.MainMenu;
 import fr.spectatorplus.gui.menus.SettingsMenu;
 import fr.spectatorplus.core.platform.PlatformPlayer;
 import fr.spectatorplus.core.platform.Sender;
+import fr.spectatorplus.filter.Preferences;
 import fr.spectatorplus.spectator.SpectatorSession;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.Locale;
 public final class SpectatorCommand {
 
     private static final List<String> SUBS = Arrays.asList("help", "join", "leave", "list", "tp", "follow", "pov",
-            "next", "prev", "inspect", "inv", "ec", "menu", "filters", "events", "info", "settings", "preset",
+            "next", "prev", "auto", "inspect", "inv", "ec", "menu", "filters", "events", "info", "settings", "preset",
             "freeze", "unfreeze", "eliminate", "mode", "game", "event", "resetfilters", "lang", "reload");
 
     private final SpectatorCore plugin;
@@ -103,6 +104,16 @@ public final class SpectatorCommand {
             case "prev": {
                 SpectatorSession s = session(sender);
                 if (s != null) plugin.spectators().cycleAndFollow(s, sub.equals("next") ? 1 : -1);
+                return true;
+            }
+            case "auto": {
+                SpectatorSession s = session(sender);
+                PlatformPlayer p = s == null ? null : s.getPlayer();
+                if (p == null) return true;
+                Preferences prefs = plugin.filters().get(p);
+                prefs.autoCombat = !prefs.autoCombat;
+                plugin.filters().changed(p, "settings.auto-combat", !prefs.autoCombat, prefs.autoCombat);
+                msg(sender, prefs.autoCombat ? "spectator.auto-combat-on" : "spectator.auto-combat-off");
                 return true;
             }
             case "menu":

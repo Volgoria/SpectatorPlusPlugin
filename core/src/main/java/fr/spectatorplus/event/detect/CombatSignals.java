@@ -101,6 +101,7 @@ public final class CombatSignals extends Detection {
         boolean crit = d.critical;
         ItemRef weapon = d.weapon;
         CombatTracker.HitResult hit = plugin.combat().hit(attacker.getUniqueId(), victim.getUniqueId(), combatTimeout());
+        plugin.spectators().combatHit(attacker.getUniqueId(), victim.getUniqueId());
 
         if (on("pvp.attack") != null) fire(pvp("pvp.attack", attacker, victim, attacker, victim, dmg, cause, crit, weapon, hp));
         if (hit.firstHitEver && on("pvp.first_hit") != null) {
@@ -239,6 +240,7 @@ public final class CombatSignals extends Detection {
 
         for (CombatTracker.Combat c : plugin.combat().endAll(id)) combatEnd(c);
         plugin.combat().clearVictim(id);
+        plugin.spectators().combatOver(id);
         plugin.platform().runLater(new Runnable() {
             @Override
             public void run() {
