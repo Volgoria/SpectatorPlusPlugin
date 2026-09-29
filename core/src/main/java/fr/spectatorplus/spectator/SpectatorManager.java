@@ -7,6 +7,7 @@ import fr.spectatorplus.api.SpectatorMode;
 import fr.spectatorplus.api.SpectatorState;
 import fr.spectatorplus.compat.Sounds;
 import fr.spectatorplus.core.platform.GameMode;
+import fr.spectatorplus.core.platform.ItemRef;
 import fr.spectatorplus.core.platform.PlatformPlayer;
 import fr.spectatorplus.core.platform.PlatformWorld;
 import fr.spectatorplus.core.platform.PlayerSnapshot;
@@ -103,7 +104,7 @@ public final class SpectatorManager {
 
         SpectatorSession session = new SpectatorSession(plugin, p.getUniqueId(), reason, state);
         sessions.put(p.getUniqueId(), session);
-        persist(session);
+        if (!plugin.game().isManagedExternally()) persist(session);
 
         try {
             p.leaveVehicle();
@@ -154,6 +155,59 @@ public final class SpectatorManager {
         return true;
     }
 
+    /**
+     * Rend le joueur au plugin de jeu qui l'a déjà remis en jeu (revive, arrivée en cours de partie) ou qui gère
+     * la suite (fin de partie, déconnexion). Mode de jeu, position et vol restent ceux choisis par le plugin de jeu ;
+     * seuls les réglages du mode spectateur sont retirés. L'inventaire d'avant l'entrée n'est rendu que si le joueur
+     * a encore celui du spectateur (sinon le plugin de jeu lui en a donné un autre, un kit par exemple).
+     */
+    public boolean release(PlatformPlayer p, LeaveReason reason) {
+        SpectatorSession s = getSpectator(p);
+        if (s == null) return false;
+        plugin.platform().api().leave(p, reason);
+        if (s.state == SpectatorState.POV) {
+            try {
+                p.setSpectatorTarget(null);
+            } catch (Throwable ignored) {
+            }
+        }
+        boolean untouched = hasSpectatorInventory(p, s);
+        s.state = SpectatorState.FREE;
+        s.target = null;
+        plugin.menus().close(p);
+        sessions.remove(p.getUniqueId());
+        deleteFile(p.getUniqueId());
+
+        p.setHealthDisplay(false, "");
+        p.setCollidable(true);
+        p.setAffectsSpawning(true);
+        p.setInvulnerable(false);
+        p.setCanPickupItems(true);
+        p.setSleepingIgnored(false);
+        p.setFlySpeed(0.1f);
+        if (untouched) {
+            // effets du spectateur (vision nocturne...) : ceux d'avant l'entrée ont déjà été retirés par apply()
+            p.clearEffects();
+            if (!s.saved.restoreInventory(p)) p.clearInventory();
+        }
+        refreshVisibility(p);
+        return true;
+    }
+
+    /** Le joueur n'a que la barre d'inventaire du spectateur (ou rien si elle est désactivée). */
+    private boolean hasSpectatorInventory(PlatformPlayer p, SpectatorSession s) {
+        ItemRef[] items = p.getStorageContents();
+        for (int i = 0; i < items.length; i++) {
+            ItemRef item = items[i];
+            boolean empty = item == null || item.isEmpty();
+            if (s.hotbarActions.containsKey(i) ? empty || item.getDisplayName() == null : !empty) return false;
+        }
+        for (ItemRef item : p.getArmorContents()) {
+            if (item != null && !item.isEmpty()) return false;
+        }
+        return true;
+    }
+
     /** Applique (ou réapplique) toutes les restrictions du mode spectateur. */
     public void apply(PlatformPlayer p) {
         SpectatorSession s = getSpectator(p);
@@ -180,8 +234,20 @@ public final class SpectatorManager {
             p.addEffect("INVISIBILITY", Integer.MAX_VALUE, 0, true, false);
         }
         applyFlySpeed(p);
-        p.setHealthDisplay(plugin.config().getBoolean("spectator.health-below-name", true),
+        refreshHealthDisplay(p);
+    }
+
+    /** Vie sous les pseudos : selon la configuration et le plugin de jeu (vie cachée par un scénario...). */
+    public void refreshHealthDisplay(PlatformPlayer p) {
+        p.setHealthDisplay(plugin.config().getBoolean("spectator.health-below-name", true) && plugin.game().isHealthVisible(),
                 plugin.messages().get(p, "spectator.health-title"));
+    }
+
+    public void refreshHealthDisplays() {
+        for (SpectatorSession s : sessions.values()) {
+            PlatformPlayer p = s.getPlayer();
+            if (p != null && s.state != SpectatorState.POV) refreshHealthDisplay(p);
+        }
     }
 
     /** Redonne la barre d'inventaire (ex : après un changement de langue). */
@@ -239,6 +305,7 @@ public final class SpectatorManager {
             PlatformPlayer sp = plugin.platform().getPlayer(id);
             if (sp != null && !same(sp, p)) applyPair(p, sp);
         }
+        if (plugin.game().isManagedExternally()) return;
         if (file(p.getUniqueId()).exists()) {
             enterFromFile(p);
             return;
@@ -267,7 +334,10 @@ public final class SpectatorManager {
     public void handleQuit(PlatformPlayer p) {
         SpectatorSession s = getSpectator(p);
         if (s != null) {
-            if (plugin.config().getBoolean("spectator.keep-on-quit", true)) {
+            if (plugin.game().isManagedExternally()) {
+                // le plugin de jeu le refera entrer à sa reconnexion s'il est toujours éliminé
+                release(p, LeaveReason.QUIT);
+            } else if (plugin.config().getBoolean("spectator.keep-on-quit", true)) {
                 sessions.remove(p.getUniqueId());
             } else {
                 leave(p, LeaveReason.QUIT, true);
@@ -278,6 +348,7 @@ public final class SpectatorManager {
 
     /** Au démarrage (ou /reload) : restaure les spectateurs déjà connectés. */
     public void restoreOnline() {
+        if (plugin.game().isManagedExternally()) return;
         for (PlatformPlayer p : plugin.platform().getOnlinePlayers()) {
             if (file(p.getUniqueId()).exists() && !isSpectator(p)) enterFromFile(p);
         }
@@ -295,7 +366,8 @@ public final class SpectatorManager {
                 }
                 p.setGameMode(GameMode.ADVENTURE);
             }
-            if (!persist) leave(p, LeaveReason.PLUGIN_DISABLE, true);
+            if (plugin.game().isManagedExternally()) release(p, LeaveReason.PLUGIN_DISABLE);
+            else if (!persist) leave(p, LeaveReason.PLUGIN_DISABLE, true);
             else p.setHealthDisplay(false, "");
         }
         for (Map.Entry<UUID, Set<UUID>> e : hiddenByUs.entrySet()) {
@@ -772,8 +844,8 @@ public final class SpectatorManager {
                 String dist = pl.sameWorld(tl) ? String.valueOf((int) pl.distance(tl)) : "?";
                 text = plugin.messages().get(p, s.state == SpectatorState.POV ? "hud.pov" : "hud.following",
                         "target", t.getName(),
-                        "health", Text.hearts(t.getHealth()),
-                        "max_health", Text.hearts(t.getMaxHealth()),
+                        "health", plugin.game().hearts(t.getHealth()),
+                        "max_health", plugin.game().hearts(t.getMaxHealth()),
                         "food", t.getFoodLevel(),
                         "distance", dist,
                         "world", t.getWorld().getName(),

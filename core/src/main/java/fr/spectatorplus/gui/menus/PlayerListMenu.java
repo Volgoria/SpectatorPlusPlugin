@@ -101,8 +101,8 @@ public final class PlayerListMenu extends Menu {
         return Icon.skull(target)
                 .name(msg("gui.players.name", "player", target.getName()))
                 .lore(lore("gui.players.lore",
-                        "health", Text.hearts(target.getHealth()),
-                        "max_health", Text.hearts(target.getMaxHealth()),
+                        "health", plugin.game().hearts(target.getHealth()),
+                        "max_health", plugin.game().hearts(target.getMaxHealth()),
                         "food", target.getFoodLevel(),
                         "world", target.getWorld().getName(),
                         "x", l.getBlockX(), "y", l.getBlockY(), "z", l.getBlockZ(),

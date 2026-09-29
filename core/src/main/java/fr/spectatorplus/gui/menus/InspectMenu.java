@@ -93,8 +93,8 @@ public final class InspectMenu extends Menu {
         }
         set(42, item("APPLE").name(msg("gui.inspect.status"))
                 .lore(lore("gui.inspect.status-lore",
-                        "health", Text.hearts(target.getHealth()),
-                        "max_health", Text.hearts(target.getMaxHealth()),
+                        "health", plugin.game().hearts(target.getHealth()),
+                        "max_health", plugin.game().hearts(target.getMaxHealth()),
                         "food", target.getFoodLevel(),
                         "level", target.getLevel(),
                         "slot", target.getHeldSlot() + 1))

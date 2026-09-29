@@ -32,9 +32,17 @@ public final class GameManager {
         String getTeam(PlatformPlayer player);
     }
 
+    /** Le plugin de jeu peut cacher la vie des joueurs (scénario où personne ne connaît sa vie...). */
+    public interface HealthVisibility {
+        boolean isHealthVisible();
+    }
+
     private final SpectatorCore plugin;
     private AliveProvider aliveProvider;
     private TeamProvider teamProvider;
+    private HealthVisibility healthVisibility;
+    /** Un plugin de jeu gère lui-même les morts, reconnexions et retours en jeu (voir {@link #setManagedExternally}). */
+    private boolean managedExternally;
 
     private boolean running;
     private long startTime;
@@ -235,6 +243,31 @@ public final class GameManager {
 
     public void setTeamProvider(TeamProvider provider) {
         this.teamProvider = provider;
+    }
+
+    public void setHealthVisibility(HealthVisibility visibility) {
+        this.healthVisibility = visibility;
+    }
+
+    public boolean isHealthVisible() {
+        return healthVisibility == null || healthVisibility.isHealthVisible();
+    }
+
+    /** Vie d'un joueur en cœurs pour l'affichage, « ? » si le plugin de jeu la cache. */
+    public String hearts(double health) {
+        return isHealthVisible() ? Text.hearts(health) : "?";
+    }
+
+    /**
+     * Un plugin de jeu (UHCCore...) décide seul qui est spectateur : Spectator Plus ne fait plus entrer les joueurs
+     * à leur mort ou à leur connexion, et ne garde pas les spectateurs d'une connexion ou d'un redémarrage à l'autre.
+     */
+    public void setManagedExternally(boolean managed) {
+        this.managedExternally = managed;
+    }
+
+    public boolean isManagedExternally() {
+        return managedExternally;
     }
 
     public int getRemainingTeams() {

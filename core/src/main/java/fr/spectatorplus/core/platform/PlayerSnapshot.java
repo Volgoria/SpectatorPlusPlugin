@@ -12,6 +12,15 @@ public interface PlayerSnapshot {
      */
     void restore(PlatformPlayer player, boolean teleport, boolean restoreInventory);
 
+    /**
+     * Rend uniquement l'inventaire sauvegardé (armure et seconde main comprises), sans toucher au reste.
+     *
+     * @return false si la plateforme ne sait pas le faire
+     */
+    default boolean restoreInventory(PlatformPlayer player) {
+        return false;
+    }
+
     /** Position sauvegardée, ou null. */
     Position getLocation();
 }

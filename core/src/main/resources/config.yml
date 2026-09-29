@@ -197,6 +197,13 @@ storage:
     options: 'useSSL=false&autoReconnect=true&characterEncoding=utf8'
     table-prefix: spectatorplus_
 
+# Intégrations avec des plugins de jeu (ignorées s'ils ne sont pas installés)
+hooks:
+  # UHCCore : joueurs en vie, équipes et progression de la partie lus dans UHCCore. UHCCore décide qui est
+  # spectateur (mort, élimination, revive) : « mode », « auto » et la conservation des spectateurs après une
+  # déconnexion ou un redémarrage sont alors ignorés. Vie cachée aux spectateurs avec le scénario SelfDiagnosis.
+  uhccore: true
+
 # API
 api:
   # Les plugins externes peuvent faire entrer / sortir des joueurs du mode spectateur

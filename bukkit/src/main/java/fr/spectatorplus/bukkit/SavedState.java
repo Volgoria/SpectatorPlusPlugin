@@ -95,6 +95,17 @@ public final class SavedState implements PlayerSnapshot {
         p.updateInventory();
     }
 
+    @Override
+    public boolean restoreInventory(PlatformPlayer player) {
+        Player p = BukkitPlayer.unwrap(player);
+        p.getInventory().clear();
+        Compat.setStorageContents(p, storage);
+        p.getInventory().setArmorContents(armor);
+        if (offHand != null) Compat.setOffHand(p, offHand);
+        p.updateInventory();
+        return true;
+    }
+
     private static float clamp(float f) {
         return Math.max(-1f, Math.min(1f, f));
     }

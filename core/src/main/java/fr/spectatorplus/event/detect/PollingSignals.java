@@ -371,7 +371,7 @@ public final class PollingSignals extends Detection {
 
     private void absorption(PlatformPlayer p, State st) {
         double now = p.getAbsorption();
-        if (st.absorption <= 0 && now > 0) {
+        if (st.absorption <= 0 && now > 0 && plugin.game().isHealthVisible()) {
             EventSettings s = on("player.absorption_gain");
             if (s != null && now / 2.0 >= s.number("min-hearts", 0)) {
                 fire(ev("player.absorption_gain", p).data("hearts", Text.hearts(now)).data("absorption", Text.hearts(now)));
@@ -385,7 +385,8 @@ public final class PollingSignals extends Detection {
     private void health(PlatformPlayer p, State st) {
         double prev = st.health / 2.0, now = p.getHealth() / 2.0;
         st.health = p.getHealth();
-        if (p.isDead() || now <= 0) return;
+        // vie cachée par le plugin de jeu : aucun évènement ne doit la trahir
+        if (p.isDead() || now <= 0 || !plugin.game().isHealthVisible()) return;
         EventSettings s = on("player.low_health");
         if (s != null) {
             for (Double t : s.doubles("hearts")) {

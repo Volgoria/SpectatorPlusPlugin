@@ -121,6 +121,20 @@ Ajouter une langue : copier `lang/en.yml` en `lang/xx.yml` et traduire, puis `/s
   de vie en plus ; s'il a déjà un scoreboard personnel donné par un autre plugin, l'objectif y est ajouté.
   Mods : objectif envoyé par paquets aux seuls spectateurs, le scoreboard du serveur n'est pas modifié.
 
+## Intégration UHCCore
+
+Si UHCCore est installé (`hooks.uhccore: true`, par défaut), c'est lui qui décide qui est spectateur :
+
+- un joueur que UHCCore passe spectateur (mort, élimination, connexion en cours de partie) entre dans Spectator Plus
+  après sa réapparition ; un revive ou une arrivée tardive le rend à UHCCore sans toucher à son mode de jeu, sa
+  position ni son kit (son inventaire d'avant n'est rendu que s'il n'a pas reçu autre chose entre-temps) ;
+- les joueurs en vie, les équipes, le début de partie, le PvP et les gagnants viennent de l'API UHCCore : seuls les
+  joueurs en vie sont proposés pour la téléportation, le suivi et le POV ;
+- à la fin de la partie, les spectateurs sont rendus à UHCCore (spectateur vanilla puis retour au lobby) ;
+- `mode`, `auto.*`, `spectator.keep-on-quit` et `spectator.persist-on-restart` sont ignorés ;
+- avec le scénario SelfDiagnosis, la vie des joueurs est cachée aux spectateurs (sous les pseudos, HUD, menus,
+  évènements de vie).
+
 ## Suivi et passe-muraille
 
 - Le suivi n'utilise plus de téléportations en boucle : une vélocité est appliquée chaque tick vers la

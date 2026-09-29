@@ -47,7 +47,7 @@ public final class PlayerSignals extends Detection {
                     .data("damage", Text.hearts(dmg)).data("damage_type", pretty(cause))
                     .data("attacker", attacker == null ? pretty(cause) : attacker)
                     .data("player_last_damage", Text.hearts(dmg))
-                    .data("player_health_after_damage", Text.hearts(after)));
+                    .data("player_health_after_damage", plugin.game().hearts(after)));
         }
         s = on("player.big_damage");
         if (s != null && dmg >= s.number("hearts", 4) * 2) {
@@ -55,7 +55,7 @@ public final class PlayerSignals extends Detection {
                     .data("damage", Text.hearts(dmg)).data("damage_type", pretty(cause))
                     .data("attacker", attacker == null ? pretty(cause) : attacker)
                     .data("player_last_damage", Text.hearts(dmg))
-                    .data("player_health_after_damage", Text.hearts(after)));
+                    .data("player_health_after_damage", plugin.game().hearts(after)));
         }
     }
 

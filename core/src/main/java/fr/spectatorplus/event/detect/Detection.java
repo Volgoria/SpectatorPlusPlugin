@@ -44,7 +44,7 @@ abstract class Detection {
             b.player(p).location(l)
                     .data("world", l.getWorld())
                     .data("x", l.getBlockX()).data("y", l.getBlockY()).data("z", l.getBlockZ())
-                    .data("health", Text.hearts(p.getHealth()));
+                    .data("health", plugin.game().hearts(p.getHealth()));
             String team = plugin.game().getTeam(p);
             if (team != null) b.data("team", team);
         }

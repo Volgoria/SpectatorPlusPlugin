@@ -35,6 +35,7 @@ import fr.spectatorplus.filter.FilterManager;
 import fr.spectatorplus.game.GameManager;
 import fr.spectatorplus.game.TpsMonitor;
 import fr.spectatorplus.gui.MenuManager;
+import fr.spectatorplus.hook.UHCCoreHook;
 import fr.spectatorplus.placeholder.PlaceholderManager;
 import fr.spectatorplus.spectator.HotbarManager;
 import fr.spectatorplus.spectator.SpectatorListener;
@@ -47,6 +48,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -120,6 +122,7 @@ public final class SpectatorPlus extends JavaPlugin implements SpectatorPlusAPI 
             pc.setTabCompleter(executor);
         }
 
+        hookUhcCore();
         core.enable();
 
         SpectatorPlusProvider.register(this);
@@ -133,6 +136,23 @@ public final class SpectatorPlus extends JavaPlugin implements SpectatorPlusAPI 
         getLogger().info("Spectator Plus " + getDescription().getVersion() + " activé (" + ServerType.describe()
                 + ", mode " + core.getMode() + ", stockage " + core.storage().name() + ", "
                 + core.events().getTypes().size() + " évènements).");
+    }
+
+    /** Intégration UHCCore (fr.spectatorplus.hook.UHCCoreHook), avant core.enable() : le jeu gère les spectateurs. */
+    private void hookUhcCore() {
+        if (!config().getBoolean("hooks.uhccore", true)) return;
+        Plugin uhc = Bukkit.getPluginManager().getPlugin("UHCCore");
+        if (uhc == null || !uhc.isEnabled()) return;
+        try {
+            if (UHCCoreHook.enable(this) != null) {
+                getLogger().info("UHCCore " + uhc.getDescription().getVersion()
+                        + " détecté : joueurs en vie, équipes et spectateurs gérés par UHCCore.");
+            } else {
+                getLogger().warning("UHCCore présent mais son API est introuvable : intégration désactivée.");
+            }
+        } catch (LinkageError e) {
+            getLogger().warning("API UHCCore incompatible, intégration désactivée : " + e);
+        }
     }
 
     @Override

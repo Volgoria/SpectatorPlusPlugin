@@ -32,6 +32,9 @@ dependencies {
     // bungeecord-chat 1.8-SNAPSHOT (dépendance de spigot-api 1.8.8) n'est plus publié en ligne :
     // copie locale dans bukkit/libs (licence BSD, compilation uniquement).
     compileOnly(files("libs/bungeecord-chat-1.8-SNAPSHOT.jar"))
+    // API UHCCore (fr.spectatorplus.hook.UHCCoreHook), copiée depuis le dépôt UHCCore (uhccore-api/target) :
+    // seule la classe du hook la référence, chargée uniquement si UHCCore est installé.
+    compileOnly(files("libs/uhccore-api-1.4.0.jar"))
     implementation(project(":core"))
 }
 

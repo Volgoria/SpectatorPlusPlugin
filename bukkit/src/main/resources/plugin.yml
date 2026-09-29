@@ -5,7 +5,7 @@ main: fr.spectatorplus.SpectatorPlus
 api-version: '1.13'
 author: Emeric
 description: Advanced spectator system - events feed, filters, follow, POV, inventory inspection and developer API.
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, UHCCore]
 load: POSTWORLD
 # Folia : non supporté (le plugin se désactive proprement)
 folia-supported: false

@@ -108,7 +108,10 @@ public final class SpectatorInteractions {
             pendingDeaths.put(p.getUniqueId(), p.getLocation());
             return true;
         }
-        if (plugin.getMode() == SpectatorMode.MANUAL || !plugin.config().getBoolean("auto.on-death", true)) return false;
+        if (plugin.getMode() == SpectatorMode.MANUAL || plugin.game().isManagedExternally()
+                || !plugin.config().getBoolean("auto.on-death", true)) {
+            return false;
+        }
         pendingDeaths.put(p.getUniqueId(), p.getLocation());
         return plugin.config().getBoolean("auto.instant-respawn", true);
     }

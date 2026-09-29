@@ -64,9 +64,9 @@ public final class PlayerSheetMenu extends Menu {
                         "alive", plugin.spectators().isSpectator(target) ? msg("gui.common.no") : msg("gui.common.yes")))
                 .build());
 
-        set(19, item("APPLE").name(msg("gui.sheet.health", "health", Text.hearts(target.getHealth()),
-                "max_health", Text.hearts(target.getMaxHealth()))).lore(msg("gui.sheet.absorption",
-                "absorption", Text.hearts(target.getAbsorption()))).build());
+        set(19, item("APPLE").name(msg("gui.sheet.health", "health", plugin.game().hearts(target.getHealth()),
+                "max_health", plugin.game().hearts(target.getMaxHealth()))).lore(msg("gui.sheet.absorption",
+                "absorption", plugin.game().hearts(target.getAbsorption()))).build());
         set(20, item("COOKED_BEEF").name(msg("gui.sheet.food", "food", target.getFoodLevel(),
                 "saturation", Text.oneDecimal(target.getSaturation()))).build());
         set(21, item("EXPERIENCE_BOTTLE|EXP_BOTTLE").name(msg("gui.sheet.level", "level", target.getLevel())).build());

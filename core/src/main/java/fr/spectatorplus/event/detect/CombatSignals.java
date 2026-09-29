@@ -60,7 +60,7 @@ public final class CombatSignals extends Detection {
                 .data("damage_type", pretty(cause))
                 .data("weapon", empty(weapon) ? "-" : pretty(weapon.getType()))
                 .data("player_last_damage", Text.hearts(dmg))
-                .data("player_health_after_damage", Text.hearts(Math.max(0, victimHealth - dmg)));
+                .data("player_health_after_damage", plugin.game().hearts(Math.max(0, victimHealth - dmg)));
     }
 
     // ------------------------------------------------------------------ dégâts entre entités
