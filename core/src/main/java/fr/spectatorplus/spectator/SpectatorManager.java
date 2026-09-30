@@ -241,7 +241,8 @@ public final class SpectatorManager {
 
     /** Vie sous les pseudos : selon la configuration et le plugin de jeu (vie cachée par un scénario...). */
     public void refreshHealthDisplay(PlatformPlayer p) {
-        p.setHealthDisplay(plugin.config().getBoolean("spectator.health-below-name", true) && plugin.game().isHealthVisible(),
+        p.setHealthDisplay(plugin.config().getBoolean("spectator.health-below-name", true) && plugin.game().isHealthVisible()
+                        && !plugin.game().isBelowNameProvided(),
                 plugin.messages().get(p, "spectator.health-title"));
     }
 

@@ -133,7 +133,11 @@ Si UHCCore est installé (`hooks.uhccore: true`, par défaut), c'est lui qui dé
 - à la fin de la partie, les spectateurs sont rendus à UHCCore (spectateur vanilla puis retour au lobby) ;
 - `mode`, `auto.*`, `spectator.keep-on-quit` et `spectator.persist-on-restart` sont ignorés ;
 - avec le scénario SelfDiagnosis, la vie des joueurs est cachée aux spectateurs (sous les pseudos, HUD, menus,
-  évènements de vie).
+  évènements de vie) ;
+- la vie sous les pseudos est laissée à TAB quand UHCCore l'affiche déjà à tout le monde (`health.below-name`) ;
+  sinon Spectator Plus l'affiche aux seuls spectateurs ;
+- le chat des éliminés est séparé et mis en forme par UHCCore (`chat.spectators-separate`) : `spectator.chat` est
+  ignoré.
 
 ## Suivi et passe-muraille
 

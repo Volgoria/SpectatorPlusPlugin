@@ -35,6 +35,11 @@ public final class GameManager {
     /** Le plugin de jeu peut cacher la vie des joueurs (scénario où personne ne connaît sa vie...). */
     public interface HealthVisibility {
         boolean isHealthVisible();
+
+        /** Le plugin de jeu affiche déjà la vie sous les pseudos à tout le monde : Spectator Plus n'ajoute pas la sienne. */
+        default boolean isBelowNameProvided() {
+            return false;
+        }
     }
 
     private final SpectatorCore plugin;
@@ -248,6 +253,10 @@ public final class GameManager {
 
     public void setHealthVisibility(HealthVisibility visibility) {
         this.healthVisibility = visibility;
+    }
+
+    public boolean isBelowNameProvided() {
+        return healthVisibility != null && healthVisibility.isBelowNameProvided();
     }
 
     public boolean isHealthVisible() {

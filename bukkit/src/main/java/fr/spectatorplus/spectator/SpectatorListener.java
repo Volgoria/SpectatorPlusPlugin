@@ -422,6 +422,8 @@ public final class SpectatorListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
         if (!plugin.config().getBoolean("spectator.chat.separate", true)) return;
+        // le plugin de jeu (UHCCore : chat.spectators-separate) sépare et met en forme lui-même le chat des éliminés
+        if (plugin.game().isManagedExternally()) return;
         Player p = e.getPlayer();
         if (!plugin.spectators().isSpectator(p.getUniqueId())) return;
         Iterator<Player> it = e.getRecipients().iterator();

@@ -134,7 +134,8 @@ public final class SpectatorPlus extends JavaPlugin implements SpectatorPlusAPI 
                     + "inventaires de mods bloqués pour les spectateurs.");
         }
         getLogger().info("Spectator Plus " + getDescription().getVersion() + " activé (" + ServerType.describe()
-                + ", mode " + core.getMode() + ", stockage " + core.storage().name() + ", "
+                + ", " + (core.game().isManagedExternally() ? "spectateurs gérés par le plugin de jeu" : "mode " + core.getMode())
+                + ", stockage " + core.storage().name() + ", "
                 + core.events().getTypes().size() + " évènements).");
     }
 

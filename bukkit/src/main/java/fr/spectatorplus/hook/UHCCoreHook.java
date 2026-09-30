@@ -8,6 +8,7 @@ import fr.dalekmc.uhccore.api.event.UHCPhaseChangeEvent;
 import fr.dalekmc.uhccore.api.event.UHCPlayerEliminatedEvent;
 import fr.dalekmc.uhccore.api.event.UHCScenarioStartEvent;
 import fr.dalekmc.uhccore.api.event.UHCScenarioStopEvent;
+import fr.dalekmc.uhccore.api.event.UHCSettingChangeEvent;
 import fr.dalekmc.uhccore.api.event.UHCSpectatorEvent;
 import fr.dalekmc.uhccore.api.event.UHCWinnerEvent;
 import fr.spectatorplus.SpectatorPlus;
@@ -42,7 +43,9 @@ import java.util.UUID;
  *     en vie sont proposés aux spectateurs (téléportation, suivi, POV) ;</li>
  *     <li>un joueur que UHCCore passe spectateur (mort, élimination, connexion en cours de partie) entre dans
  *     Spectator Plus, et lui est rendu quand UHCCore le remet en jeu (revive, arrivée tardive) ou à la fin ;</li>
- *     <li>la vie des joueurs est cachée aux spectateurs quand le scénario SelfDiagnosis est actif.</li>
+ *     <li>la vie des joueurs est cachée aux spectateurs quand le scénario SelfDiagnosis est actif, et laissée à
+ *     TAB quand UHCCore l'affiche déjà sous les pseudos (health.below-name) ;</li>
+ *     <li>le chat des éliminés est séparé et mis en forme par UHCCore (chat.spectators-separate).</li>
  * </ul>
  * Chargée seulement si UHCCore est présent (hooks.uhccore dans config.yml) : c'est la seule classe qui
  * référence l'API UHCCore.
@@ -50,6 +53,7 @@ import java.util.UUID;
 public final class UHCCoreHook implements Listener {
 
     private static final String SELF_DIAGNOSIS = "SelfDiagnosis";
+    private static final String HEALTH_BELOW_NAME = "health.below-name";
 
     private final SpectatorPlus plugin;
     private final UHCAPI api;
@@ -99,6 +103,12 @@ public final class UHCCoreHook implements Listener {
             @Override
             public boolean isHealthVisible() {
                 return !api.getScenarios().isActive(SELF_DIAGNOSIS);
+            }
+
+            @Override
+            public boolean isBelowNameProvided() {
+                // UHCCore l'affiche à tout le monde par TAB (health.below-name) : pas de second objectif
+                return api.getSettings().getBoolean(HEALTH_BELOW_NAME) && Bukkit.getPluginManager().isPluginEnabled("TAB");
             }
         });
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -247,6 +257,11 @@ public final class UHCCoreHook implements Listener {
     }
 
     // ------------------------------------------------------------------ vie cachée (SelfDiagnosis)
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onSetting(UHCSettingChangeEvent e) {
+        if (HEALTH_BELOW_NAME.equals(e.getPath())) plugin.spectators().refreshHealthDisplays();
+    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onScenarioStart(UHCScenarioStartEvent e) {
