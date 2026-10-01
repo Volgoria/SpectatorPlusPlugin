@@ -1,0 +1,29 @@
+# Généré par DalekInfra (ci/sync.py) — modifier le modèle ci/templates/gradle.yml, pas ce fichier.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Runner auto-hébergé sur dalek : Java 21, dépôt Maven privé (Reposilite) en local
+    runs-on: [self-hosted, dalek]
+    timeout-minutes: 30
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-21-openjdk-amd64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build et tests
+        run: chmod +x gradlew && ./gradlew --no-daemon :bukkit:build
+
+      - name: Publication du plugin (artefacts dalek)
+        if: true && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+        run: /srv/dalek/bin/dalek-artifact publish SpectatorPlus bukkit/build/libs/*.jar
