@@ -50,7 +50,12 @@ public final class EventManager extends EventRegistry {
     public GameEvent.Builder builder(String typeId) {
         SpectatorEventType type = getType(typeId);
         if (type == null) throw new IllegalArgumentException("Unknown event type: " + typeId);
-        return GameEvent.builder(type);
+        return GameEvent.builder(type).names(new GameEvent.NameResolver() {
+            @Override
+            public String name(PlatformPlayer player) {
+                return plugin.game().publicName(player);
+            }
+        });
     }
 
     // ------------------------------------------------------------------ diffusion
@@ -137,7 +142,7 @@ public final class EventManager extends EventRegistry {
         PlatformPlayer subjectPlayer = subject == null ? null : plugin.platform().getPlayer(subject);
         if (subjectPlayer != null && !subjectPlayer.equals(viewer) && plugin.config().getBoolean("events.clickable", true)) {
             String lang = plugin.messages().lang(viewer);
-            String hover = plugin.messages().get(viewer, "events.hover", "player", subjectPlayer.getName(),
+            String hover = plugin.messages().get(viewer, "events.hover", "player", plugin.game().publicName(subjectPlayer),
                     "event", Text.strip(Text.color(plugin.messages().eventName(lang, event.getType()))),
                     "priority", Text.strip(plugin.messages().get(viewer, "importance." + importance.name())));
             viewer.sendClickable(message, hover, "/spectatorplus tp " + subjectPlayer.getName());

@@ -34,7 +34,7 @@ public final class PlayerSheetMenu extends Menu {
 
     @Override
     protected String title() {
-        return msg("gui.sheet.title", "player", target.getName());
+        return msg("gui.sheet.title", "player", plugin.game().publicName(target));
     }
 
     @Override
@@ -57,7 +57,7 @@ public final class PlayerSheetMenu extends Menu {
         Position l = target.getLocation();
         String team = plugin.game().getTeam(target);
 
-        set(4, Icon.skull(target).name("&e" + target.getName())
+        set(4, plugin.game().publicSkull(target).name("&e" + plugin.game().publicName(target))
                 .lore(lore("gui.sheet.head",
                         "team", team == null ? msg("placeholders.none") : team,
                         "gamemode", target.getGameMode().name(),

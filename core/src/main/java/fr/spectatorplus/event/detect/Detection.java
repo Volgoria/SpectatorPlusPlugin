@@ -25,6 +25,11 @@ abstract class Detection {
         this.plugin = plugin;
     }
 
+    /** Nom du joueur montré aux spectateurs (anonymat géré par le plugin de jeu). */
+    protected String name(PlatformPlayer p) {
+        return plugin.game().publicName(p);
+    }
+
     /** Réglages si l'évènement est activé, sinon null (permet de sortir vite). */
     protected EventSettings on(String id) {
         return plugin.events().isEnabled(id) ? plugin.events().settings(id) : null;

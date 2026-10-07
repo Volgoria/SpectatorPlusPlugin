@@ -129,6 +129,10 @@ errors:
   filter-locked: '&cCe filtre est verrouillé.'
   command-blocked: '&cCette commande est interdite en mode spectateur.'
   unknown-language: '&cLangue inconnue : {language}'
+  join-playing: '&c{player} est encore en jeu : la partie (UHCCore) décide qui devient spectateur.'
+  leave-eliminated: '&c{player} est éliminé : seul le plugin de jeu peut le remettre en jeu (&7/uhc revive&c).'
+  eliminate-refused: '&cImpossible d''éliminer {player} : il n''est pas en vie dans une partie en cours, ou le plugin de jeu a refusé.'
+  game-managed: '&cLa partie est gérée par le plugin de jeu (UHCCore) : utilisez ses commandes.'
 
 # ============================================================================
 #                                 INTERFACES

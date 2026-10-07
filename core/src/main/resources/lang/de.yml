@@ -128,6 +128,10 @@ errors:
   filter-locked: '&cDieser Filter ist gesperrt.'
   command-blocked: '&cDieser Befehl ist im Zuschauermodus verboten.'
   unknown-language: '&cUnbekannte Sprache: {language}'
+  join-playing: '&c{player} ist noch im Spiel: Das Spiel-Plugin (UHCCore) entscheidet, wer Zuschauer wird.'
+  leave-eliminated: '&c{player} ist ausgeschieden: Nur das Spiel-Plugin kann ihn zurückholen (&7/uhc revive&c).'
+  eliminate-refused: '&c{player} konnte nicht eliminiert werden: Er lebt in keinem laufenden Spiel, oder das Spiel-Plugin hat abgelehnt.'
+  game-managed: '&cDas Spiel wird vom Spiel-Plugin (UHCCore) verwaltet: Benutze dessen Befehle.'
 
 # ============================================================================
 #                                 MENÜS

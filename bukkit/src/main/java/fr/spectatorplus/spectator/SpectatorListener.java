@@ -37,6 +37,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -355,6 +356,14 @@ public final class SpectatorListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSneak(PlayerToggleSneakEvent e) {
         if (e.isSneaking()) plugin.core().interactions().sneak(plugin.wrap(e.getPlayer()));
+    }
+
+    /** /gamemode, /uhc spectate... : Spectator Plus se resynchronise (ses propres changements sont ignorés). */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onGameModeChange(PlayerGameModeChangeEvent e) {
+        if (!spec(e.getPlayer())) return;
+        plugin.spectators().externalGameModeChange(plugin.wrap(e.getPlayer()),
+                fr.spectatorplus.core.platform.GameMode.valueOf(e.getNewGameMode().name()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

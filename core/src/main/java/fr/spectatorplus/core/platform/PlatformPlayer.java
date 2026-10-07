@@ -157,6 +157,9 @@ public interface PlatformPlayer extends Sender {
 
     void clearEffects();
 
+    /** Retire un effet par son nom (NIGHT_VISION, INVISIBILITY...), sans toucher aux autres. */
+    void removeEffect(String name);
+
     /** Ajoute un effet par son nom (NIGHT_VISION, INVISIBILITY...). */
     void addEffect(String name, int duration, int amplifier, boolean ambient, boolean particles);
 

@@ -396,6 +396,15 @@ public final class ModPlayer implements PlatformPlayer {
     }
 
     @Override
+    public void removeEffect(String name) {
+        if (name.equals("NIGHT_VISION")) {
+            handle().removeEffect(MobEffects.NIGHT_VISION);
+        } else if (name.equals("INVISIBILITY")) {
+            handle().removeEffect(MobEffects.INVISIBILITY);
+        }
+    }
+
+    @Override
     public void addEffect(String name, int duration, int amplifier, boolean ambient, boolean particles) {
         if (name.equals("NIGHT_VISION")) {
             handle().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, duration, amplifier, ambient, particles));

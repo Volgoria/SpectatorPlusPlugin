@@ -131,6 +131,14 @@ Si UHCCore est installé (`hooks.uhccore: true`, par défaut), c'est lui qui dé
 - les joueurs en vie, les équipes, le début de partie, le PvP et les gagnants viennent de l'API UHCCore : seuls les
   joueurs en vie sont proposés pour la téléportation, le suivi et le POV ;
 - à la fin de la partie, les spectateurs sont rendus à UHCCore (spectateur vanilla puis retour au lobby) ;
+- un joueur encore en jeu (lobby ou en vie) n'a jamais de session : `/spec join` lui est refusé, `/spec eliminate`
+  passe par l'élimination d'UHCCore, les sessions restées sont libérées au lancement, et `/spec game` est refusé ;
+- `/spec leave` (commande, objet, menu) est refusé à un éliminé (seul `/uhc revive` le remet en jeu) et rend
+  simplement un joueur en vie à UHCCore ;
+- un changement de mode externe (`/gamemode`, `/uhc spectate`) est suivi : spectateur → passe-muraille, survie ou
+  créatif → le joueur n'est plus spectateur ; à la sortie, seuls les effets du spectateur sont retirés ;
+- les noms montrés aux spectateurs (messages, HUD, menus, évènements) sont les noms publics d'UHCCore (scénario
+  Anonymous) ; une élimination hors ligne est annoncée tout de suite, pas à la reconnexion ;
 - `mode`, `auto.*`, `spectator.keep-on-quit` et `spectator.persist-on-restart` sont ignorés ;
 - avec le scénario SelfDiagnosis, la vie des joueurs est cachée aux spectateurs (sous les pseudos, HUD, menus,
   évènements de vie) ;

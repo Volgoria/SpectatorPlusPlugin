@@ -1,11 +1,11 @@
 package fr.spectatorplus.gui.menus;
 
 import fr.spectatorplus.SpectatorCore;
-import fr.spectatorplus.api.LeaveReason;
 import fr.spectatorplus.core.platform.Click;
 import fr.spectatorplus.core.platform.Icon;
 import fr.spectatorplus.core.platform.PlatformPlayer;
 import fr.spectatorplus.gui.Menu;
+import fr.spectatorplus.spectator.SpectatorManager;
 import fr.spectatorplus.spectator.SpectatorSession;
 
 /**
@@ -39,7 +39,7 @@ public final class MainMenu extends Menu {
         set(4, Icon.skull(viewer).name("&b" + viewer.getName())
                 .lore(lore("gui.main.info.lore",
                         "state", s == null ? "-" : s.getState().name(),
-                        "target", target == null ? msg("placeholders.none") : target.getName(),
+                        "target", target == null ? msg("placeholders.none") : plugin.game().publicName(target),
                         "preset", plugin.filters().get(viewer).preset))
                 .build());
 
@@ -109,7 +109,9 @@ public final class MainMenu extends Menu {
                 @Override
                 public void click(Click type) {
                     viewer.closeInventory();
-                    plugin.spectators().leave(viewer, LeaveReason.COMMAND, false);
+                    if (plugin.spectators().requestLeave(viewer, false) == SpectatorManager.LeaveRequest.ELIMINATED) {
+                        plugin.messages().send(viewer, "errors.leave-eliminated", "player", viewer.getName());
+                    }
                 }
             });
         }

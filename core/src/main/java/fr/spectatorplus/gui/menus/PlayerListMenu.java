@@ -98,8 +98,8 @@ public final class PlayerListMenu extends Menu {
         String dist = viewer.getLocation().sameWorld(l)
                 ? String.valueOf((int) viewer.getLocation().distance(l)) : "-";
         String team = plugin.game().getTeam(target);
-        return Icon.skull(target)
-                .name(msg("gui.players.name", "player", target.getName()))
+        return plugin.game().publicSkull(target)
+                .name(msg("gui.players.name", "player", plugin.game().publicName(target)))
                 .lore(lore("gui.players.lore",
                         "health", plugin.game().hearts(target.getHealth()),
                         "max_health", plugin.game().hearts(target.getMaxHealth()),

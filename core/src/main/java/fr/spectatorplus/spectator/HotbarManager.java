@@ -1,7 +1,6 @@
 package fr.spectatorplus.spectator;
 
 import fr.spectatorplus.SpectatorCore;
-import fr.spectatorplus.api.LeaveReason;
 import fr.spectatorplus.api.SpectatorState;
 import fr.spectatorplus.compat.Sounds;
 import fr.spectatorplus.core.config.ConfigSection;
@@ -97,7 +96,10 @@ public final class HotbarManager {
                 new PlayerListMenu(plugin, p, PlayerListMenu.Mode.POV).open();
                 break;
             case "leave":
-                if (p.hasPermission("spectatorplus.leave")) plugin.spectators().leave(p, LeaveReason.COMMAND, false);
+                if (p.hasPermission("spectatorplus.leave")
+                        && plugin.spectators().requestLeave(p, false) == SpectatorManager.LeaveRequest.ELIMINATED) {
+                    plugin.messages().send(p, "errors.leave-eliminated", "player", p.getName());
+                }
                 break;
             default:
                 // action personnalisée : commande exécutée par le joueur

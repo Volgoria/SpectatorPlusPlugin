@@ -6,6 +6,7 @@ import fr.spectatorplus.api.LeaveReason;
 import fr.spectatorplus.api.SpectatorMode;
 import fr.spectatorplus.api.SpectatorState;
 import fr.spectatorplus.compat.Sounds;
+import fr.spectatorplus.core.platform.EffectInfo;
 import fr.spectatorplus.core.platform.GameMode;
 import fr.spectatorplus.core.platform.ItemRef;
 import fr.spectatorplus.core.platform.PlatformPlayer;
@@ -42,6 +43,18 @@ public final class SpectatorManager {
     private final Map<UUID, Set<UUID>> hiddenByUs = new HashMap<>();
     private final CombatDirector director = new CombatDirector();
     private final File folder;
+    /** Joueur dont Spectator Plus change lui-même le mode de jeu (évènement de changement ignoré). */
+    private UUID changingGameMode;
+
+    /** Résultat d'une demande de sortie (commande, objet, menu). */
+    public enum LeaveRequest {
+        /** Le joueur n'est plus spectateur. */
+        LEFT,
+        /** Refusée par un plugin (évènement annulé). */
+        REFUSED,
+        /** Éliminé dans une partie gérée par un plugin de jeu : seul ce plugin peut le remettre en jeu. */
+        ELIMINATED
+    }
 
     public SpectatorManager(SpectatorCore plugin) {
         this.plugin = plugin;
@@ -124,6 +137,22 @@ public final class SpectatorManager {
         return true;
     }
 
+    /**
+     * Sortie demandée par le joueur ou un administrateur. Quand un plugin de jeu gère la partie, restaurer l'état
+     * d'avant l'entrée laisserait un éliminé en spectateur vanilla (le plugin de jeu l'y avait déjà mis) : la sortie
+     * est refusée aux éliminés (le plugin de jeu les remet en jeu, /uhc revive) et rend simplement les joueurs encore
+     * en jeu au plugin de jeu.
+     */
+    public LeaveRequest requestLeave(PlatformPlayer p, boolean forced) {
+        if (!isSpectator(p)) return LeaveRequest.REFUSED;
+        if (plugin.game().isManagedExternally()) {
+            if (!plugin.game().isPlayingExternally(p.getUniqueId())) return LeaveRequest.ELIMINATED;
+            plugin.game().getExternalGame().releasePlaying(p);
+            return isSpectator(p) ? LeaveRequest.REFUSED : LeaveRequest.LEFT;
+        }
+        return leave(p, LeaveReason.COMMAND, forced) ? LeaveRequest.LEFT : LeaveRequest.REFUSED;
+    }
+
     public boolean leave(PlatformPlayer p, LeaveReason reason, boolean forced) {
         SpectatorSession s = getSpectator(p);
         if (s == null) return false;
@@ -153,6 +182,7 @@ public final class SpectatorManager {
         s.saved.restore(p, tp.equals("SAVED"), true);
         if (tp.equals("SPAWN")) p.teleport(p.getWorld().getSpawn());
         refreshVisibility(p);
+        if (reason != LeaveReason.PLUGIN_DISABLE && reason != LeaveReason.QUIT) plugin.game().onRevive(p.getUniqueId());
         if (reason != LeaveReason.PLUGIN_DISABLE) plugin.messages().send(p, "spectator.leave");
         return true;
     }
@@ -187,13 +217,27 @@ public final class SpectatorManager {
         p.setCanPickupItems(true);
         p.setSleepingIgnored(false);
         p.setFlySpeed(0.1f);
-        if (untouched) {
-            // effets du spectateur (vision nocturne...) : ceux d'avant l'entrée ont déjà été retirés par apply()
-            p.clearEffects();
-            if (!s.saved.restoreInventory(p)) p.clearInventory();
-        }
+        // seulement les effets du spectateur : ceux que le plugin de jeu vient de donner (glowing de phase...) restent
+        removeSpectatorEffects(p);
+        if (untouched && !s.saved.restoreInventory(p)) p.clearInventory();
         refreshVisibility(p);
         return true;
+    }
+
+    /** Effets posés par {@link #apply} : durée « infinie » (les potions ordinaires durent au plus quelques minutes). */
+    static final String[] SPECTATOR_EFFECTS = {"NIGHT_VISION", "INVISIBILITY"};
+
+    private void removeSpectatorEffects(PlatformPlayer p) {
+        for (EffectInfo e : p.getEffects()) {
+            if (isSpectatorEffect(e)) p.removeEffect(e.getName());
+        }
+    }
+
+    static boolean isSpectatorEffect(EffectInfo e) {
+        boolean ours = false;
+        for (String name : SPECTATOR_EFFECTS) ours |= name.equalsIgnoreCase(e.getName());
+        // infini : Integer.MAX_VALUE (décompté) ou -1 (1.19.4+)
+        return ours && (e.getDuration() < 0 || e.getDuration() > 20 * 60 * 60 * 24);
     }
 
     /** Le joueur n'a que la barre d'inventaire du spectateur (ou rien si elle est désactivée). */
@@ -210,11 +254,55 @@ public final class SpectatorManager {
         return true;
     }
 
+    // ------------------------------------------------------------------ mode de jeu
+
+    /** Change le mode de jeu en signalant que le changement vient de Spectator Plus. */
+    private void setMode(PlatformPlayer p, GameMode mode) {
+        UUID previous = changingGameMode;
+        changingGameMode = p.getUniqueId();
+        try {
+            p.setGameMode(mode);
+        } finally {
+            changingGameMode = previous;
+        }
+    }
+
+    /** Le changement de mode de jeu en cours vient-il de Spectator Plus ? */
+    public boolean isChangingGameMode(UUID id) {
+        return id != null && id.equals(changingGameMode);
+    }
+
+    /**
+     * Mode de jeu changé par un autre plugin ou une commande (/gamemode, /uhc spectate...) : Spectator Plus se
+     * resynchronise. En spectateur vanilla, le passe-muraille reprend la main (retour en aventure à l'air libre) ;
+     * en survie ou en créatif, le joueur n'est plus spectateur.
+     *
+     * @return vrai si la session a été modifiée
+     */
+    public boolean externalGameModeChange(PlatformPlayer p, GameMode mode) {
+        SpectatorSession s = getSpectator(p);
+        if (s == null || mode == null || isChangingGameMode(p.getUniqueId())) return false;
+        switch (mode) {
+            case SPECTATOR:
+                if (s.state == SpectatorState.POV) return false;
+                // comme pendant le passe-muraille : noclipTick le ramène en aventure loin des blocs
+                s.noclip = true;
+                return true;
+            case ADVENTURE:
+                if (!s.noclip) return false;
+                s.noclip = false;
+                return true;
+            default:
+                release(p, LeaveReason.API);
+                return true;
+        }
+    }
+
     /** Applique (ou réapplique) toutes les restrictions du mode spectateur. */
     public void apply(PlatformPlayer p) {
         SpectatorSession s = getSpectator(p);
         if (s == null) return;
-        if (s.state != SpectatorState.POV) p.setGameMode(GameMode.ADVENTURE);
+        if (s.state != SpectatorState.POV) setMode(p, GameMode.ADVENTURE);
         s.noclip = false;
         p.setAllowFlight(true);
         p.setFlying(true);
@@ -367,7 +455,7 @@ public final class SpectatorManager {
                     p.setSpectatorTarget(null);
                 } catch (Throwable ignored) {
                 }
-                p.setGameMode(GameMode.ADVENTURE);
+                setMode(p, GameMode.ADVENTURE);
             }
             if (plugin.game().isManagedExternally()) release(p, LeaveReason.PLUGIN_DISABLE);
             else if (!persist) leave(p, LeaveReason.PLUGIN_DISABLE, true);
@@ -451,7 +539,7 @@ public final class SpectatorManager {
         p.teleport(dest);
         p.setFlying(true);
         if (plugin.filters().get(p).sounds) p.playSound(Sounds.TELEPORT, 0.6f, 1.2f);
-        plugin.messages().send(p, "spectator.teleported", "target", target.getName());
+        plugin.messages().send(p, "spectator.teleported", "target", plugin.game().publicName(target));
         return true;
     }
 
@@ -484,7 +572,7 @@ public final class SpectatorManager {
             p.teleport(behind(target, plugin.filters().get(p).followDistance));
         }
         p.setFlying(true);
-        if (announce) plugin.messages().send(p, "spectator.follow-start", "target", target.getName());
+        if (announce) plugin.messages().send(p, "spectator.follow-start", "target", plugin.game().publicName(target));
     }
 
     public void stopFollowing(SpectatorSession s, boolean message) {
@@ -728,7 +816,7 @@ public final class SpectatorManager {
             boolean near = nearSolid(p, movement);
             if (near && !s.noclip && p.getGameMode() == GameMode.ADVENTURE) {
                 s.noclip = true;
-                p.setGameMode(GameMode.SPECTATOR);
+                setMode(p, GameMode.SPECTATOR);
             } else if (!near && s.noclip) {
                 exitNoclip(s, p);
             }
@@ -738,7 +826,7 @@ public final class SpectatorManager {
     private void exitNoclip(SpectatorSession s, PlatformPlayer p) {
         s.noclip = false;
         if (p.getGameMode() == GameMode.SPECTATOR) {
-            p.setGameMode(GameMode.ADVENTURE);
+            setMode(p, GameMode.ADVENTURE);
             p.setAllowFlight(true);
             p.setFlying(true);
             applyFlySpeed(p);
@@ -817,14 +905,14 @@ public final class SpectatorManager {
         s.targetSince = System.currentTimeMillis();
         s.povExitRequested = false;
         p.teleport(target.getLocation());
-        p.setGameMode(GameMode.SPECTATOR);
+        setMode(p, GameMode.SPECTATOR);
         plugin.platform().runLater(new Runnable() {
             @Override
             public void run() {
                 if (s.state == SpectatorState.POV && p.isOnline() && target.isOnline()) p.setSpectatorTarget(target);
             }
         }, 3L);
-        if (announce) plugin.messages().send(p, "spectator.pov-start", "target", target.getName());
+        if (announce) plugin.messages().send(p, "spectator.pov-start", "target", plugin.game().publicName(target));
     }
 
     public void stopPov(SpectatorSession s) {
@@ -846,7 +934,7 @@ public final class SpectatorManager {
         } catch (Throwable ignored) {
         }
         s.povExitRequested = false;
-        p.setGameMode(GameMode.ADVENTURE);
+        setMode(p, GameMode.ADVENTURE);
         apply(p);
         plugin.hotbar().give(p, s);
     }
@@ -878,7 +966,7 @@ public final class SpectatorManager {
             }
             UUID current = p.getSpectatorTargetId();
             if (current == null || !current.equals(t.getUniqueId())) {
-                if (p.getGameMode() != GameMode.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
+                if (p.getGameMode() != GameMode.SPECTATOR) setMode(p, GameMode.SPECTATOR);
                 Position pl = p.getLocation(), tl = t.getLocation();
                 if (!pl.sameWorld(tl) || pl.distanceSquared(tl) > 4) p.teleport(tl);
                 p.setSpectatorTarget(t);
@@ -921,7 +1009,8 @@ public final class SpectatorManager {
             else follow(s, t, false);
             UUID opponent = director.opponent(next, now);
             PlatformPlayer o = opponent == null ? null : plugin.platform().getPlayer(opponent);
-            plugin.messages().send(p, "spectator.auto-combat", "target", t.getName(), "opponent", o == null ? "?" : o.getName());
+            plugin.messages().send(p, "spectator.auto-combat", "target", plugin.game().publicName(t),
+                    "opponent", o == null ? "?" : plugin.game().publicName(o));
         }
     }
 
@@ -953,7 +1042,7 @@ public final class SpectatorManager {
                 Position pl = p.getLocation(), tl = t.getLocation();
                 String dist = pl.sameWorld(tl) ? String.valueOf((int) pl.distance(tl)) : "?";
                 text = plugin.messages().get(p, s.state == SpectatorState.POV ? "hud.pov" : "hud.following",
-                        "target", t.getName(),
+                        "target", plugin.game().publicName(t),
                         "health", plugin.game().hearts(t.getHealth()),
                         "max_health", plugin.game().hearts(t.getMaxHealth()),
                         "food", t.getFoodLevel(),

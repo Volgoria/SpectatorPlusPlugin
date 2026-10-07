@@ -385,6 +385,12 @@ public final class BukkitPlayer implements PlatformPlayer {
     }
 
     @Override
+    public void removeEffect(String name) {
+        PotionEffectType type = PotionEffectType.getByName(name);
+        if (type != null) handle().removePotionEffect(type);
+    }
+
+    @Override
     public void addEffect(String name, int duration, int amplifier, boolean ambient, boolean particles) {
         // NIGHT_VISION et INVISIBILITY portent le même nom sur toutes les versions
         PotionEffectType type = PotionEffectType.getByName(name);
