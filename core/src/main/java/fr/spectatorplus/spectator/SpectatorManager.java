@@ -496,7 +496,9 @@ public final class SpectatorManager {
             if (isSpectator(viewer)) {
                 hide = !plugin.filters().get(viewer).seeSpectators;
             } else {
-                hide = !viewer.hasPermission("spectatorplus.see-spectators");
+                // Un joueur en vie ne voit jamais les spectateurs, même avec la permission (héritée par tout le staff
+                // depuis le groupe caster, ou via « * ») : elle sert au staff et aux casters qui ne jouent pas.
+                hide = !viewer.hasPermission("spectatorplus.see-spectators") || plugin.game().isAliveInGame(viewer.getUniqueId());
             }
         }
         Set<UUID> set = hiddenByUs.get(viewer.getUniqueId());

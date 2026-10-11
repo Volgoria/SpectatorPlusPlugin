@@ -224,6 +224,12 @@ public final class GameManager {
         return eliminated.contains(id);
     }
 
+    /** Le joueur est-il en vie dans une partie en cours (UHCCore ou partie interne) ? */
+    public boolean isAliveInGame(UUID id) {
+        if (managedExternally) return isPlayingExternally(id);
+        return running && participants.contains(id) && !eliminated.contains(id);
+    }
+
     /** Vérifie le nombre de joueurs/équipes restants (appelé après chaque mort, élimination, déconnexion). */
     public void checkAliveCount() {
         Collection<PlatformPlayer> alive = getAlivePlayers();
