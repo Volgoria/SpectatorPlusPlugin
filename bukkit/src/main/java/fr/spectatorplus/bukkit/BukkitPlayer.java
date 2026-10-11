@@ -347,6 +347,11 @@ public final class BukkitPlayer implements PlatformPlayer {
     }
 
     @Override
+    public void setLocatorBarVisible(boolean visible) {
+        Compat.setLocatorBarVisible(handle(), visible);
+    }
+
+    @Override
     public void setAffectsSpawning(boolean value) {
         Compat.setAffectsSpawning(handle(), value);
     }
@@ -382,6 +387,12 @@ public final class BukkitPlayer implements PlatformPlayer {
     public void clearEffects() {
         Player p = handle();
         for (PotionEffect e : p.getActivePotionEffects()) p.removePotionEffect(e.getType());
+    }
+
+    @Override
+    public void removeEffect(String name) {
+        PotionEffectType type = PotionEffectType.getByName(name);
+        if (type != null) handle().removePotionEffect(type);
     }
 
     @Override

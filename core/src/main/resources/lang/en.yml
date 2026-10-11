@@ -128,6 +128,10 @@ errors:
   filter-locked: '&cThis filter is locked.'
   command-blocked: '&cThis command is not allowed in spectator mode.'
   unknown-language: '&cUnknown language: {language}'
+  join-playing: '&c{player} is still in the game: the game plugin (UHCCore) decides who becomes a spectator.'
+  leave-eliminated: '&c{player} is eliminated: only the game plugin can bring them back (&7/uhc revive&c).'
+  eliminate-refused: '&cCould not eliminate {player}: they are not alive in a running game, or the game plugin refused.'
+  game-managed: '&cThe game is managed by the game plugin (UHCCore): use its commands.'
 
 # ============================================================================
 #                                 MENUS

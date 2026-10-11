@@ -37,7 +37,7 @@ public final class PlayerSignals extends Detection {
         if (dmg <= 0) return;
         String cause = d.cause;
         boolean pvp = d.attacker != null;
-        String attacker = d.attacker != null ? d.attacker.getName()
+        String attacker = d.attacker != null ? name(d.attacker)
                 : d.attackerMob != null ? pretty(d.attackerMob.getType())
                 : d.directType != null ? pretty(d.directType) : null;
         double after = Math.max(0, d.victimHealthBefore - dmg);

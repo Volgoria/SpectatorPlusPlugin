@@ -72,6 +72,29 @@ public final class Compat {
         }
     }
 
+    /**
+     * Locator bar (1.21.6+) : un joueur n'y apparaît pas si son attribut waypoint_transmit_range vaut 0. Les
+     * spectateurs sont en aventure (pas en spectateur vanilla), il faut donc le couper à la main ; rendu à sa valeur
+     * par défaut au retour en jeu. Sans effet avant 1.21.6.
+     */
+    public static void setLocatorBarVisible(Player p, boolean visible) {
+        try {
+            Class<?> keyClass = Class.forName("org.bukkit.NamespacedKey");
+            Object key = keyClass.getMethod("minecraft", String.class).invoke(null, "waypoint_transmit_range");
+            Class<?> registry = Class.forName("org.bukkit.Registry");
+            Object attribute = registry.getMethod("get", keyClass).invoke(registry.getField("ATTRIBUTE").get(null), key);
+            if (attribute == null) return;
+            Object instance = p.getClass().getMethod("getAttribute", Class.forName("org.bukkit.attribute.Attribute"))
+                    .invoke(p, attribute);
+            if (instance == null) return;
+            Class<?> instanceClass = Class.forName("org.bukkit.attribute.AttributeInstance");
+            double value = visible ? (double) instanceClass.getMethod("getDefaultValue").invoke(instance) : 0.0;
+            instanceClass.getMethod("setBaseValue", double.class).invoke(instance, value);
+        } catch (Throwable ignored) {
+            // version sans locator bar
+        }
+    }
+
     public static void setCollidable(Player p, boolean collidable) {
         if (!Reflect.tryInvoke(p, "setCollidable", collidable)) {
             Reflect.tryInvoke(Reflect.invoke(p, "spigot"), "setCollidesWithEntities", collidable);

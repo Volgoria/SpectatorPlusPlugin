@@ -5,6 +5,7 @@ import fr.spectatorplus.api.EnterReason;
 import fr.spectatorplus.api.LeaveReason;
 import fr.spectatorplus.core.event.GameEvent;
 import fr.spectatorplus.core.platform.GameMode;
+import fr.spectatorplus.core.platform.Icon;
 import fr.spectatorplus.core.platform.PlatformPlayer;
 import fr.spectatorplus.util.Text;
 
@@ -42,7 +43,25 @@ public final class GameManager {
         }
     }
 
+    /**
+     * Plugin de jeu qui gère lui-même la partie (UHCCore) : vies, éliminations et noms publics passent par lui.
+     */
+    public interface ExternalGame {
+        /** @return vrai si le joueur fait partie de la partie et n'est pas éliminé (lobby compris) */
+        boolean isPlaying(UUID player);
+
+        /** Élimine le joueur par le plugin de jeu. @return faux si le plugin de jeu refuse */
+        boolean eliminate(UUID player);
+
+        /** Rend un joueur encore en jeu (session ouverte par erreur) au plugin de jeu : sortie du mode spectateur. */
+        void releasePlaying(PlatformPlayer player);
+
+        /** Nom montré aux autres (« Anonyme » avec le scénario Anonymous...). */
+        String getPublicName(PlatformPlayer player);
+    }
+
     private final SpectatorCore plugin;
+    private ExternalGame externalGame;
     private AliveProvider aliveProvider;
     private TeamProvider teamProvider;
     private HealthVisibility healthVisibility;
@@ -163,17 +182,36 @@ public final class GameManager {
         fire(plugin.events().builder("game.team_win").data("team", team));
     }
 
-    public void eliminate(PlatformPlayer player) {
-        if (plugin.spectators().isSpectator(player)) return;
-        plugin.spectators().enter(player, EnterReason.ELIMINATION, null, true);
+    /**
+     * Élimine un joueur. Quand un plugin de jeu gère la partie, c'est lui qui élimine (et fait entrer le joueur en
+     * spectateur) : une session ouverte directement laisserait le joueur « en vie » pour lui.
+     *
+     * @return faux si le plugin de jeu refuse ou si le joueur est déjà spectateur
+     */
+    public boolean eliminate(PlatformPlayer player) {
+        if (externalGame != null) return externalGame.eliminate(player.getUniqueId());
+        if (plugin.spectators().isSpectator(player)) return false;
+        return plugin.spectators().enter(player, EnterReason.ELIMINATION, null, true);
     }
 
     /** Appelé lorsqu'un joueur est éliminé (mort → spectateur ou API). */
     public void onElimination(PlatformPlayer player) {
-        eliminated.add(player.getUniqueId());
-        fire(plugin.events().builder("death.eliminated").player(player)
-                .data("dead_player", player.getName())
+        onElimination(player.getUniqueId(), publicName(player));
+    }
+
+    /** Élimination d'un joueur éventuellement hors ligne : annoncée une seule fois. */
+    public void onElimination(UUID id, String name) {
+        if (!eliminated.add(id)) return;
+        fire(plugin.events().builder("death.eliminated").player(id, name)
+                .data("dead_player", name)
                 .data("alive", getAlivePlayers().size()));
+        checkAliveCount();
+    }
+
+    /** Joueur remis en jeu (revive) : il n'est plus compté parmi les éliminés. */
+    public void onRevive(UUID id) {
+        if (!eliminated.remove(id)) return;
+        if (running) participants.add(id);
         checkAliveCount();
     }
 
@@ -184,6 +222,12 @@ public final class GameManager {
 
     public boolean wasEliminated(UUID id) {
         return eliminated.contains(id);
+    }
+
+    /** Le joueur est-il en vie dans une partie en cours (UHCCore ou partie interne) ? */
+    public boolean isAliveInGame(UUID id) {
+        if (managedExternally) return isPlayingExternally(id);
+        return running && participants.contains(id) && !eliminated.contains(id);
     }
 
     /** Vérifie le nombre de joueurs/équipes restants (appelé après chaque mort, élimination, déconnexion). */
@@ -274,6 +318,38 @@ public final class GameManager {
      */
     public void setManagedExternally(boolean managed) {
         this.managedExternally = managed;
+    }
+
+    public void setExternalGame(ExternalGame game) {
+        this.externalGame = game;
+    }
+
+    public ExternalGame getExternalGame() {
+        return externalGame;
+    }
+
+    /** Le joueur est encore en jeu pour le plugin de jeu (faux sans plugin de jeu). */
+    public boolean isPlayingExternally(UUID id) {
+        return managedExternally && externalGame != null && externalGame.isPlaying(id);
+    }
+
+    /** Tête du joueur dans les menus : neutre quand le plugin de jeu cache son identité (skin compris). */
+    public Icon publicSkull(PlatformPlayer player) {
+        return publicName(player).equals(player.getName()) ? Icon.skull(player) : Icon.head();
+    }
+
+    /** Nom montré aux spectateurs : celui du plugin de jeu (anonymat), sinon le pseudo. */
+    public String publicName(PlatformPlayer player) {
+        if (player == null) return "?";
+        if (externalGame != null) {
+            try {
+                String name = externalGame.getPublicName(player);
+                if (name != null && !name.isEmpty()) return name;
+            } catch (RuntimeException ignored) {
+                // plugin de jeu en cours de rechargement : pseudo
+            }
+        }
+        return player.getName();
     }
 
     public boolean isManagedExternally() {

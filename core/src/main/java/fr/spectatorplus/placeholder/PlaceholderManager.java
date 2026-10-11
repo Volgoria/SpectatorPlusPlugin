@@ -161,7 +161,7 @@ public final class PlaceholderManager {
             case "spectator_following": {
                 SpectatorSession s = viewer == null ? null : plugin.spectators().getSpectator(viewer);
                 PlatformPlayer t = s == null ? null : s.getFollowTarget();
-                return t == null ? plugin.messages().raw(lang(ctx), "placeholders.none") : t.getName();
+                return t == null ? plugin.messages().raw(lang(ctx), "placeholders.none") : plugin.game().publicName(t);
             }
             case "spectator_mode": {
                 SpectatorSession s = viewer == null ? null : plugin.spectators().getSpectator(viewer);

@@ -136,6 +136,10 @@ public interface PlatformPlayer extends Sender {
 
     void setCollidable(boolean value);
 
+    /** Le joueur apparaît-il dans la locator bar des autres (1.21.6+) ? Sans effet là où elle n'existe pas. */
+    default void setLocatorBarVisible(boolean visible) {
+    }
+
     /** Le joueur fait-il apparaître des monstres autour de lui ? */
     void setAffectsSpawning(boolean value);
 
@@ -156,6 +160,9 @@ public interface PlatformPlayer extends Sender {
     List<EffectInfo> getEffects();
 
     void clearEffects();
+
+    /** Retire un effet par son nom (NIGHT_VISION, INVISIBILITY...), sans toucher aux autres. */
+    void removeEffect(String name);
 
     /** Ajoute un effet par son nom (NIGHT_VISION, INVISIBILITY...). */
     void addEffect(String name, int duration, int amplifier, boolean ambient, boolean particles);

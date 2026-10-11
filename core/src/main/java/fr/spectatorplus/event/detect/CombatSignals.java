@@ -43,8 +43,8 @@ public final class CombatSignals extends Detection {
         PlatformPlayer a = plugin.platform().getPlayer(c.a), b = plugin.platform().getPlayer(c.b);
         if (a == null) return;
         GameEvent.Builder builder = ev("pvp.combat_end", a)
-                .data("attacker", a.getName())
-                .data("victim", b == null ? "?" : b.getName())
+                .data("attacker", name(a))
+                .data("victim", b == null ? "?" : name(b))
                 .data("duration", Text.duration((c.lastHit - c.start) / 1000));
         if (b != null) builder.player(b);
         fire(builder);
@@ -54,8 +54,8 @@ public final class CombatSignals extends Detection {
                                   PlatformPlayer victim, double dmg, String cause, boolean crit, ItemRef weapon, double victimHealth) {
         return ev(id, subject).player(other)
                 .damage(dmg, cause, true, crit)
-                .data("attacker", attacker.getName())
-                .data("victim", victim.getName())
+                .data("attacker", name(attacker))
+                .data("victim", name(victim))
                 .data("damage", Text.hearts(dmg))
                 .data("damage_type", pretty(cause))
                 .data("weapon", empty(weapon) ? "-" : pretty(weapon.getType()))
@@ -89,7 +89,7 @@ public final class CombatSignals extends Detection {
                         .data("entity", pretty(mob.getType())).data("entity_type", mob.getType())
                         .data("mob", pretty(mob.getType())).data("mob_damage", Text.hearts(dmg))
                         .data("mob_health", Text.hearts(mob.getHealth()))
-                        .data("attacker", pretty(mob.getType())).data("victim", p.getName()));
+                        .data("attacker", pretty(mob.getType())).data("victim", name(p)));
             }
         }
     }
@@ -183,7 +183,7 @@ public final class CombatSignals extends Detection {
         }
         if (p.equals(killer)) killer = null;
 
-        String killerName = killer != null ? killer.getName() : mob != null ? pretty(mob.getType()) : pretty(cause);
+        String killerName = killer != null ? name(killer) : mob != null ? pretty(mob.getType()) : pretty(cause);
         if (on("death.death") != null) fire(death("death.death", p, loc, cause, killerName));
         if (plugin.stats().firstGlobal("death") && on("death.first_death") != null) {
             fire(death("death.first_death", p, loc, cause, killerName));
@@ -251,7 +251,7 @@ public final class CombatSignals extends Detection {
 
     private GameEvent.Builder death(String id, PlatformPlayer p, Position loc, String cause, String killer) {
         return ev(id, p).location(loc)
-                .data("dead_player", p.getName()).data("victim", p.getName())
+                .data("dead_player", name(p)).data("victim", name(p))
                 .data("killer", killer)
                 .data("death_cause", pretty(cause))
                 .data("death_x", loc.getBlockX()).data("death_y", loc.getBlockY()).data("death_z", loc.getBlockZ())
@@ -266,8 +266,8 @@ public final class CombatSignals extends Detection {
         String weaponName = empty(weapon) ? "-" : pretty(weapon.getType());
 
         if (on("death.killed_by_player") != null) {
-            fire(death("death.killed_by_player", victim, loc, cause, killer.getName()).player(killer)
-                    .data("attacker", killer.getName()).data("weapon", weaponName).data("kills", kills));
+            fire(death("death.killed_by_player", victim, loc, cause, name(killer)).player(killer)
+                    .data("attacker", name(killer)).data("weapon", weaponName).data("kills", kills));
         }
         if (plugin.stats().firstGlobal("kill") && on("pvp.first_kill") != null) {
             fire(killEvent("pvp.first_kill", killer, victim, loc, cause, weaponName).data("kills", kills));
@@ -295,16 +295,16 @@ public final class CombatSignals extends Detection {
                 PlatformPlayer ap = plugin.platform().getPlayer(a);
                 if (ap == null || !tracked(ap)) continue;
                 fire(ev("pvp.assist", ap).player(victim).player(killer)
-                        .data("assist", ap.getName()).data("killer", killer.getName())
-                        .data("victim", victim.getName()).data("dead_player", victim.getName()));
+                        .data("assist", name(ap)).data("killer", name(killer))
+                        .data("victim", name(victim)).data("dead_player", name(victim)));
             }
         }
     }
 
     private GameEvent.Builder killEvent(String id, PlatformPlayer killer, PlatformPlayer victim, Position loc, String cause, String weapon) {
         return ev(id, killer).player(victim).location(loc)
-                .data("killer", killer.getName()).data("attacker", killer.getName())
-                .data("victim", victim.getName()).data("dead_player", victim.getName())
+                .data("killer", name(killer)).data("attacker", name(killer))
+                .data("victim", name(victim)).data("dead_player", name(victim))
                 .data("weapon", weapon).data("death_cause", pretty(cause))
                 .data("kills", plugin.stats().kills(killer.getUniqueId()));
     }

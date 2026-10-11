@@ -2,7 +2,6 @@ package fr.spectatorplus.command;
 
 import fr.spectatorplus.SpectatorCore;
 import fr.spectatorplus.api.EnterReason;
-import fr.spectatorplus.api.LeaveReason;
 import fr.spectatorplus.api.SpectatorMode;
 import fr.spectatorplus.api.event.SpectatorEventType;
 import fr.spectatorplus.gui.menus.FiltersMenu;
@@ -13,6 +12,7 @@ import fr.spectatorplus.gui.menus.SettingsMenu;
 import fr.spectatorplus.core.platform.PlatformPlayer;
 import fr.spectatorplus.core.platform.Sender;
 import fr.spectatorplus.filter.Preferences;
+import fr.spectatorplus.spectator.SpectatorManager;
 import fr.spectatorplus.spectator.SpectatorSession;
 
 import java.util.ArrayList;
@@ -138,8 +138,9 @@ public final class SpectatorCommand {
                 }
                 PlatformPlayer el = target(sender, args[1]);
                 if (el != null) {
-                    plugin.game().eliminate(el);
-                    msg(sender, "admin.eliminated", "player", el.getName());
+                    // géré par un plugin de jeu : c'est lui qui élimine (sinon le joueur resterait « en vie » pour lui)
+                    if (plugin.game().eliminate(el)) msg(sender, "admin.eliminated", "player", el.getName());
+                    else msg(sender, "errors.eliminate-refused", "player", el.getName());
                 }
                 return true;
             case "mode":
@@ -190,6 +191,12 @@ public final class SpectatorCommand {
             msg(sender, "errors.already-spectator", "player", target.getName());
             return;
         }
+        // partie gérée par un plugin de jeu : un joueur encore en jeu ne devient pas spectateur par Spectator Plus
+        // (il resterait invisible et invulnérable tout en étant « en vie » pour le plugin de jeu)
+        if (plugin.game().isPlayingExternally(target.getUniqueId())) {
+            msg(sender, "errors.join-playing", "player", target.getName());
+            return;
+        }
         if (!plugin.spectators().enter(target, EnterReason.COMMAND, null, sender.hasPermission("spectatorplus.admin"))) {
             msg(sender, "errors.enter-refused", "player", target.getName());
         } else if (!target.equals(sender)) {
@@ -211,7 +218,10 @@ public final class SpectatorCommand {
             msg(sender, "errors.not-spectator-other", "player", target.getName());
             return;
         }
-        if (!plugin.spectators().leave(target, LeaveReason.COMMAND, sender.hasPermission("spectatorplus.admin"))) {
+        SpectatorManager.LeaveRequest result = plugin.spectators().requestLeave(target, sender.hasPermission("spectatorplus.admin"));
+        if (result == SpectatorManager.LeaveRequest.ELIMINATED) {
+            msg(sender, "errors.leave-eliminated", "player", target.getName());
+        } else if (result == SpectatorManager.LeaveRequest.REFUSED) {
             msg(sender, "errors.leave-refused", "player", target.getName());
         } else if (!target.equals(sender)) {
             msg(sender, "admin.left", "player", target.getName());
@@ -376,6 +386,11 @@ public final class SpectatorCommand {
 
     private void game(Sender sender, String label, String[] args) {
         if (!perm(sender, "spectatorplus.game")) return;
+        // la partie est menée par le plugin de jeu : un /spec game start ou end fausserait le suivi (historique, joueurs...)
+        if (plugin.game().isManagedExternally()) {
+            msg(sender, "errors.game-managed");
+            return;
+        }
         if (args.length < 2) {
             usage(sender, label + " game <start|end|pvp|grace|episode|endepisode|winner|teamwin>");
             return;

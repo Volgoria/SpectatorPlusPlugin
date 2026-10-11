@@ -34,7 +34,7 @@ public final class InspectMenu extends Menu {
 
     @Override
     protected String title() {
-        return msg(enderChest ? "gui.inspect.title-enderchest" : "gui.inspect.title", "player", target.getName());
+        return msg(enderChest ? "gui.inspect.title-enderchest" : "gui.inspect.title", "player", plugin.game().publicName(target));
     }
 
     @Override
@@ -120,7 +120,7 @@ public final class InspectMenu extends Menu {
                 new PlayerSheetMenu(plugin, viewer, target).open();
             }
         });
-        set(49, Icon.skull(target).name("&e" + target.getName()).build());
+        set(49, plugin.game().publicSkull(target).name("&e" + plugin.game().publicName(target)).build());
         close(53);
         fill(36, 53);
     }

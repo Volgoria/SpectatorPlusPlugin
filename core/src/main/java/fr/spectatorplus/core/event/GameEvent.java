@@ -133,8 +133,14 @@ public final class GameEvent {
         this.message = message;
     }
 
+    /** Nom d'un joueur tel que montré aux spectateurs (anonymat géré par le plugin de jeu). */
+    public interface NameResolver {
+        String name(PlatformPlayer player);
+    }
+
     public static final class Builder {
         private final SpectatorEventType type;
+        private NameResolver resolver;
         private final List<UUID> players = new ArrayList<>();
         private final Map<UUID, String> names = new LinkedHashMap<>();
         private final Map<String, String> data = new LinkedHashMap<>();
@@ -152,15 +158,22 @@ public final class GameEvent {
             this.type = type;
         }
 
+        /** Noms des joueurs ajoutés par {@link #player(PlatformPlayer)} (pseudo par défaut). */
+        public Builder names(NameResolver resolver) {
+            this.resolver = resolver;
+            return this;
+        }
+
         /** Ajoute un joueur concerné. Le premier ajouté est le joueur principal ({player}). */
         public Builder player(PlatformPlayer player) {
             if (player == null) return this;
+            String name = resolver == null ? player.getName() : resolver.name(player);
             if (!players.contains(player.getUniqueId())) {
                 players.add(player.getUniqueId());
-                names.put(player.getUniqueId(), player.getName());
+                names.put(player.getUniqueId(), name);
             }
             if (players.size() == 1) {
-                data.put("player", player.getName());
+                data.put("player", name);
                 if (location == null) location = player.getLocation();
             }
             return this;
