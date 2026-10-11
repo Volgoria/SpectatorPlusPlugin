@@ -136,6 +136,10 @@ public interface PlatformPlayer extends Sender {
 
     void setCollidable(boolean value);
 
+    /** Le joueur apparaît-il dans la locator bar des autres (1.21.6+) ? Sans effet là où elle n'existe pas. */
+    default void setLocatorBarVisible(boolean visible) {
+    }
+
     /** Le joueur fait-il apparaître des monstres autour de lui ? */
     void setAffectsSpawning(boolean value);
 

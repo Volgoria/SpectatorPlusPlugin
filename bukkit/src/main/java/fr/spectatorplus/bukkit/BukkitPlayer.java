@@ -347,6 +347,11 @@ public final class BukkitPlayer implements PlatformPlayer {
     }
 
     @Override
+    public void setLocatorBarVisible(boolean visible) {
+        Compat.setLocatorBarVisible(handle(), visible);
+    }
+
+    @Override
     public void setAffectsSpawning(boolean value) {
         Compat.setAffectsSpawning(handle(), value);
     }

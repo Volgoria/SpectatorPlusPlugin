@@ -172,6 +172,7 @@ public final class SpectatorManager {
 
         p.setHealthDisplay(false, "");
         p.setCollidable(true);
+        p.setLocatorBarVisible(true);
         p.setAffectsSpawning(true);
         p.setInvulnerable(false);
         p.setCanPickupItems(true);
@@ -212,6 +213,7 @@ public final class SpectatorManager {
 
         p.setHealthDisplay(false, "");
         p.setCollidable(true);
+        p.setLocatorBarVisible(true);
         p.setAffectsSpawning(true);
         p.setInvulnerable(false);
         p.setCanPickupItems(true);
@@ -314,6 +316,7 @@ public final class SpectatorManager {
         p.setCanPickupItems(false);
         p.setSleepingIgnored(true);
         p.setCollidable(false);
+        p.setLocatorBarVisible(false);
         p.setAffectsSpawning(false);
         p.setInvulnerable(true);
         if (plugin.config().getBoolean("spectator.clear-effects", true)) p.clearEffects();
